@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "bshr"
+version = "0.1.0"
+description = "Bashare app for rent and book sharing"
+authors = ["avo888 <avoevodin8888@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8.1,<4.0"
+fastapi = "^0.88.0"
+sqlalchemy = "^1.4.45"
+greenlet = "^2.0.1"
+hypercorn = "^0.14.3"
+alembic = "^1.8.1"
+pydantic = "^1.10.2"
+passlib = "^1.7.4"
+python-jose = "^3.3.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.0"
+pytest-asyncio = "^0.20.3"
+pytest-cov = "^4.0.0"
+flake8 = "^6.0.0"
+flake8-isort = "^5.0.3"
+flake8-quotes = "^3.3.1"
+flake8-docstrings = "^1.6.0"
+flake8-annotations = "^2.9.1"
+flake8-comprehensions = "^3.10.1"
+black = "^22.12.0"
+flake8-polyfill = "^1.0.2"
+mypy = "^0.991"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
