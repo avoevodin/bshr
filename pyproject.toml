@@ -16,6 +16,7 @@ alembic = "^1.8.1"
 pydantic = "^1.10.2"
 passlib = "^1.7.4"
 python-jose = "^3.3.0"
+uvloop = "^0.17.0"
 
 
 [tool.poetry.group.dev.dependencies]
