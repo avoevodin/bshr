@@ -1,17 +1,17 @@
 """
 Main start module
 """
-import hypercorn
+import asyncio
+
+import uvloop
 from fastapi import FastAPI
+from hypercorn.asyncio import serve
+from hypercorn.asyncio.run import uvloop_worker
+from hypercorn.config import Config
 from starlette.middleware.cors import CORSMiddleware
 
 from bshr.bshr.api.api_v1.api import api_router
 from bshr.bshr.core.config import settings
-
-import asyncio
-import uvloop
-from hypercorn.config import Config
-from hypercorn.asyncio import serve
 
 OPENAPI_DESCRIPTION = """
 **API for bashare app**

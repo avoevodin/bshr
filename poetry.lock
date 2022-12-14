@@ -283,6 +283,7 @@ h11 = "*"
 h2 = ">=3.1.0"
 priority = "*"
 toml = "*"
+uvloop = {version = "*", optional = true, markers = "platform_system != \"Windows\" and extra == \"uvloop\""}
 wsproto = ">=0.14.0"
 
 [package.extras]
@@ -747,7 +748,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "5de1724923fdb6e2fdec538651a4f684d773b594364d043a6bd223119cb8b037"
+content-hash = "4257c8db4d37f3143694304a97c6aaffbdce5b7dd5aedcd2018f92edaee8a681"
 
 [metadata.files]
 alembic = [
