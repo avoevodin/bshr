@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, constr, validator
@@ -14,6 +15,7 @@ class UserBase(BaseModel):
     email: Optional[EmailStr] = None
     is_active: Optional[bool] = True
     is_superuser: bool = False
+    confirmed: bool = False
 
 
 class UserCreate(UserBase):
@@ -50,8 +52,14 @@ class UserInDBBase(UserBase):
     """
 
     id: Optional[int] = None
+    created: Optional[datetime] = None
+    last_login: Optional[datetime] = None
 
     class Config:
+        """
+        Config for user schema
+        """
+
         orm_mode = True
 
 
