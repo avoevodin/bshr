@@ -29,7 +29,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param id: object id
         :return: SQLAlchemy model class
         """
-        res = await db.execute(select(self.model)).filter(self.model.id == id)
+        res = await db.execute(select(self.model).filter(self.model.id == id))
         found_obj = res.scalar_one_or_none()
         return found_obj
 
@@ -98,7 +98,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         :param id: object id
         :return: SQLAlchemy model class
         """
-        res = await db.execute(select(self.model)).filter(self.model.id == id)
+        res = await db.execute(select(self.model).filter(self.model.id == id))
         found_obj = res.scalar_one_or_none()
         await db.delete(found_obj)
         await db.commit()
