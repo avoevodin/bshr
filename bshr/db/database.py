@@ -40,3 +40,13 @@ async def app_init_db(app: FastAPI) -> None:
             is_superuser=True,
         )
         await crud.user.create(session, user_in)
+
+
+async def app_dispose_db(app: FastAPI) -> None:
+    """
+    Dispose db-connection.
+    :param app: FastAPI application.
+    :return: None
+    """
+    session = app.state.db
+    await session.close()
