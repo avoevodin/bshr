@@ -2,9 +2,9 @@
 Project config module
 """
 import secrets
-from typing import List, Union
+from typing import List, Union, Optional
 
-from pydantic import BaseSettings, AnyHttpUrl, validator
+from pydantic import BaseSettings, AnyHttpUrl, validator, PostgresDsn
 
 
 class Settings(BaseSettings):
@@ -31,6 +31,12 @@ class Settings(BaseSettings):
         case_sensitive = True
 
     PROJECT_NAME: str = "Bashare"
+
+    SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
+
+    FIRST_SUPERUSER: str
+    FIRST_SUPERUSER_EMAIL: str
+    FIRST_SUPERUSER_PASSWORD: str
 
 
 settings = Settings()
