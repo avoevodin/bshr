@@ -108,20 +108,23 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
 
 @staticmethod
-def is_active(user: User) -> bool:
+def is_active(usr: User) -> bool:
     """
     Check if user is active.
-    :param user: user object
+    :param usr: user object
     :return: bool
     """
-    return user.is_active
+    return usr.is_active
 
 
 @staticmethod
-def is_superuser(user: User) -> bool:
+def is_superuser(usr: User) -> bool:
     """
     Check if user is superuser.
-    :param user: user object
+    :param usr: user object
     :return: bool
     """
-    return user.is_superuser
+    return usr.is_superuser
+
+
+user = CRUDUser(User)
