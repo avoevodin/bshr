@@ -9,8 +9,8 @@ from hypercorn.asyncio import serve
 from hypercorn.config import Config
 from starlette.middleware.cors import CORSMiddleware
 
-from bshr.bshr.api.api_v1.api import api_router
-from bshr.bshr.core.config import settings
+from api.api_v1.api import api_router
+from core.config import settings
 from db.database import app_init_db, app_dispose_db
 
 OPENAPI_DESCRIPTION = """
