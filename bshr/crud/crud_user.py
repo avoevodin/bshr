@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union, Dict, Any
 
 from sqlalchemy.future import select
 from sqlalchemy.orm import Session
@@ -35,8 +35,29 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             email=obj_in.email,
             password=password_hash_ctx.hash(obj_in.password),
         )
-
         db.add(user_db)
         await db.commit()
         await db.refresh(user_db)
         return user_db
+
+    async def update(
+        self, db: Session, *, obj_db: User, obj_in: Union[UserUpdate, Dict[str, Any]]
+    ) -> User:
+        """
+
+        :param db: SQLAlchemy session
+        :param obj_db: user db model
+        :param obj_in: user update data
+        :return: user model
+        """
+        if isinstance(obj_in, dict):
+            update_data = obj_in
+        else:
+            update_data = obj_in.dict(exclude_unset=True)
+
+        if update_data["password"]:
+            hashed_password = password_hash_ctx.hash(update_data["password"])
+            del update_data["password"]
+            update_data["hashed_password"] = hashed_password
+
+        return super().update(db, obj_db=obj_db, obj_in=update_data)
