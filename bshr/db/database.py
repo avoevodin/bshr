@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 import crud
 import schemas
 from core.config import settings
+from utils.database import get_sqlalchemy_db_uri
 
 
 async def app_init_db(app: FastAPI) -> None:
@@ -15,7 +16,7 @@ async def app_init_db(app: FastAPI) -> None:
     :return: None
     """
     engine = create_async_engine(
-        url=settings.SQLALCHEMY_DATABASE_URI,
+        url=get_sqlalchemy_db_uri(),
         echo=False,
         pool_size=50,
         pool_pre_ping=True,
