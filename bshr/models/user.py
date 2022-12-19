@@ -1,14 +1,18 @@
 """
-Database package.
+User models.
+
+Attributes:
+    User: base user model SQLAlchemy schema.
+
 """
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, func
 
-from db.base import Base  # noqa
+from db import Base  # noqa
 
 
 class User(Base):
     """
-    Base user SQLAlchemy model.l
+    Base user SQLAlchemy model.
     """
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
