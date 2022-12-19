@@ -7,7 +7,7 @@ Attributes:
 """
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, func
 
-from db import Base  # noqa
+from app.db import Base  # noqa
 
 
 class User(Base):
