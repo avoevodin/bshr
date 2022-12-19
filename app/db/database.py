@@ -39,10 +39,10 @@ async def app_init_db(app: FastAPI) -> None:
         user_in = schemas.UserCreate(
             username=settings.FIRST_SUPERUSER,
             email=settings.FIRST_SUPERUSER_EMAIL,
-            passwors=settings.FIRST_SUPERUSER_PASSWORD,
+            password=settings.FIRST_SUPERUSER_PASSWORD,
             is_superuser=True,
         )
-        await crud.user.create(session, user_in)
+        await crud.user.create(session, obj_in=user_in)
 
 
 async def app_dispose_db(app: FastAPI) -> None:

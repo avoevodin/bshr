@@ -44,11 +44,8 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         :param obj_in: user create schema
         :return:  user model
         """
-        user_db = User(
-            username=obj_in.username,
-            email=obj_in.email,
-            password=password_hash_ctx.hash(obj_in.password),
-        )
+        obj_in.password = password_hash_ctx.hash(obj_in.password)
+        user_db = User(**obj_in.dict())
         db.add(user_db)
         await db.commit()
         await db.refresh(user_db)

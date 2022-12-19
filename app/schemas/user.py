@@ -26,6 +26,7 @@ class UserCreate(UserBase):
     username: str = None
     email: EmailStr = None
     password: constr(min_length=8, max_length=200)
+    is_superuser: bool = False
 
     @validator("username", pre=True)
     def username_is_valid(cls, username: str) -> Optional[str]:
