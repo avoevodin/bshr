@@ -1,5 +1,5 @@
 """
-SQLAlchemy User model.
+Pydantic User schemas.
 
 Attrs:
     UserBase: common user properties.
