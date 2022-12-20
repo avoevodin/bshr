@@ -1,4 +1,10 @@
-from fastapi import APIRouter, HTTPException
+"""
+Endpoints of arbitrary utilities.
+
+Attrs:
+    health_check: check connections to databases.
+"""
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.exc import InterfaceError
 from starlette import status
 from starlette.requests import Request
@@ -32,3 +38,17 @@ async def health_check(request: Request) -> dict:
         raise HTTPException(
             detail="connection failed", status_code=status.HTTP_503_SERVICE_UNAVAILABLE
         )
+
+
+async def common_parameters(q: str = "", skip: int = 0, limit: int = 100):
+    return {"q": q, "skip": skip, "limit": limit}
+
+
+@router.get("/items/")
+async def read_items(commons: dict = Depends(common_parameters)):
+    return commons
+
+
+@router.get("/users/")
+async def read_users(commons: dict = Depends(common_parameters)):
+    return commons

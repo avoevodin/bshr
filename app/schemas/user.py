@@ -42,6 +42,7 @@ class UserCreate(UserBase):
     def username_is_valid(cls, username: str) -> Optional[str]:
         """
         Check username is valid.
+
         Args:
             username: username string
 

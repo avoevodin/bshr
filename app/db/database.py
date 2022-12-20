@@ -58,6 +58,7 @@ async def app_init_db(app: FastAPI) -> None:
 async def app_dispose_db(app: FastAPI) -> None:
     """
     Dispose db-connection.
+
     Args:
         app: FastAPI application.
 
