@@ -1,3 +1,10 @@
+"""
+Database initialization methods.
+
+Attrs:
+    app_init_db: database initialization.
+    app_dispose_db: database disposing.
+"""
 from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -12,8 +19,11 @@ async def app_init_db(app: FastAPI) -> None:
     """
     Init database function.
 
-    :param app: FastAPI application
-    :return: None
+    Args:
+        app: FastAPI application
+
+    Returns:
+        None
     """
     engine = create_async_engine(
         url=get_sqlalchemy_db_uri(),
@@ -48,8 +58,11 @@ async def app_init_db(app: FastAPI) -> None:
 async def app_dispose_db(app: FastAPI) -> None:
     """
     Dispose db-connection.
-    :param app: FastAPI application.
-    :return: None
+    Args:
+        app: FastAPI application.
+
+    Returns:
+        None
     """
     session = app.state.db
     await session.close()

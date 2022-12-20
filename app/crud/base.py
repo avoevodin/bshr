@@ -1,3 +1,6 @@
+"""
+Common CRUD methods.
+"""
 from typing import TypeVar, Type, Generic, Optional, Any, List, Union, Dict
 
 from fastapi.encoders import jsonable_encoder

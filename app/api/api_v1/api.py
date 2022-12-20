@@ -1,3 +1,6 @@
+"""
+FastAPI api router initialization package.
+"""
 from fastapi import APIRouter
 
 from api.api_v1.views import login, utils

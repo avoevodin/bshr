@@ -1,3 +1,6 @@
+"""
+User CRUD methods.
+"""
 from typing import Optional, Union, Dict, Any
 
 from sqlalchemy.future import select
@@ -6,7 +9,7 @@ from sqlalchemy.orm import Session
 from crud.base import CRUDBase
 from models import User
 from schemas import UserCreate, UserUpdate
-from utils.password import password_hash_ctx
+from core.security import password_hash_ctx
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):

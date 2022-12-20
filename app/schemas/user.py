@@ -1,8 +1,18 @@
+"""
+SQLAlchemy User model.
+
+Attrs:
+    UserBase: common user properties.
+    UserCreate: create user properties.
+    UserUpdate: update user properties.
+    UserInDBBase: common user db properties.
+    User: main user properties to return via API.
+    UserInDB: user properties stored in DB.
+"""
 from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, constr, validator
-
 from utils.user import validate_username
 
 
@@ -32,8 +42,11 @@ class UserCreate(UserBase):
     def username_is_valid(cls, username: str) -> Optional[str]:
         """
         Check username is valid.
-        :param username: username string
-        :return: username
+        Args:
+            username: username string
+
+        Returns:
+            username string
         """
         return validate_username(username)
 

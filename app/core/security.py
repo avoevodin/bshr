@@ -1,5 +1,5 @@
 """
-Password utils.
+Security utils.
 
 Attrs:
     password_hash_ctx: context for creating password using
