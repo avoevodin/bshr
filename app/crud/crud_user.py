@@ -3,6 +3,7 @@ User CRUD methods.
 """
 from typing import Optional, Union, Dict, Any
 
+from schemas.login import Register
 from sqlalchemy.future import select
 from sqlalchemy.orm import Session
 
@@ -39,7 +40,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         found_user = res.scalar_one_or_none()
         return found_user
 
-    async def create(self, db: Session, *, obj_in: UserCreate) -> User:
+    async def create(self, db: Session, *, obj_in: Register) -> User:
         """
         Create user.
 

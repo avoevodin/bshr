@@ -30,6 +30,7 @@ async def app_init_db(app: FastAPI) -> None:
         echo=False,
         pool_size=50,
         pool_pre_ping=True,
+        pool_recycle=300,
     )
     async_session = sessionmaker(
         engine, expire_on_commit=False, autoflush=False, class_=AsyncSession
