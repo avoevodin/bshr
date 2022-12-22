@@ -13,7 +13,8 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, constr, validator
-from utils.user import validate_username
+
+from app.utils.user import validate_username
 
 
 class UserBase(BaseModel):

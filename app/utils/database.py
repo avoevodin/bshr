@@ -4,7 +4,7 @@ Database utils.
 Attrs:
     get_sqlalchemy_db_uri: returns sqlalchemy database uri using env vars.
 """
-from core.config import settings
+from app.core.config import settings
 
 
 def get_sqlalchemy_db_uri():

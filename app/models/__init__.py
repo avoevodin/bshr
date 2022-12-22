@@ -1,7 +1,7 @@
 """
 SQLAlchemy models.
 """
-from db import Base
-from models.user import User
+from app.db import Base
+from app.models.user import User
 
 __all__ = ["User", "Base"]

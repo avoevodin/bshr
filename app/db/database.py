@@ -9,10 +9,9 @@ from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-import crud
-import schemas
-from core.config import settings
-from utils.database import get_sqlalchemy_db_uri
+from app import crud, schemas
+from app.core.config import settings
+from app.utils.database import get_sqlalchemy_db_uri
 
 
 async def app_init_db(app: FastAPI) -> None:

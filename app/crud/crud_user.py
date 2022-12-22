@@ -3,14 +3,14 @@ User CRUD methods.
 """
 from typing import Optional, Union, Dict, Any
 
-from schemas.login import Register
 from sqlalchemy.future import select
 from sqlalchemy.orm import Session
 
-from crud.base import CRUDBase
-from models import User
-from schemas import UserCreate, UserUpdate
-from core.security import password_hash_ctx
+from app.core.security import password_hash_ctx
+from app.crud.base import CRUDBase
+from app.models import User
+from app.schemas import UserCreate, UserUpdate
+from app.schemas.login import Register
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):

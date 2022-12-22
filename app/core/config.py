@@ -2,9 +2,9 @@
 Project config module
 """
 import secrets
-from typing import List, Union, Optional
+from typing import List, Union
 
-from pydantic import BaseSettings, AnyHttpUrl, validator, PostgresDsn
+from pydantic import BaseSettings, AnyHttpUrl, validator
 
 
 class Settings(BaseSettings):

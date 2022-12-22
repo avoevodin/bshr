@@ -13,9 +13,10 @@ Attrs:
 from datetime import timedelta, datetime
 from typing import Union, Any
 
-from core.config import settings
 from jose import jwt
 from passlib.context import CryptContext
+
+from app.core.config import settings
 
 password_hash_ctx = CryptContext(
     schemes=["pbkdf2_sha256"],
