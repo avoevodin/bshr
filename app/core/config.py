@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     """
 
     API_V1_STR: str = "/api/v1"
-    SECRET_KEY: str = secrets.token_urlsafe(32)
     SERVER_NAME: str = "bshr"
     SERVER_HOST: str = "0.0.0.0"
     SERVER_PORT: int = 8000
@@ -31,6 +30,23 @@ class Settings(BaseSettings):
         case_sensitive = True
 
     PROJECT_NAME: str = "Bashare"
+
+    SQLALCHEMY_DATABASE_DRIVER: str
+    SQLALCHEMY_DATABASE_NAME: str
+    SQLALCHEMY_DATABASE_USER: str
+    SQLALCHEMY_DATABASE_PASSWORD: str
+    SQLALCHEMY_DATABASE_HOST: str
+    SQLALCHEMY_DATABASE_PORT: str
+
+    FIRST_SUPERUSER: str
+    FIRST_SUPERUSER_EMAIL: str
+    FIRST_SUPERUSER_PASSWORD: str
+
+    SECRET_KEY: str = secrets.token_urlsafe(32)
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 5
+    # 8 days by default
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
 
 
 settings = Settings()
