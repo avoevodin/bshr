@@ -1,22 +1,16 @@
 """
-User models.
-
-Attributes:
-    User: base user model SQLAlchemy schema.
-
+Database package.
 """
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, func
-
-from app.db import Base  # noqa
+from db.base import Base  # noqa
 
 
 class User(Base):
     """
-    Base user SQLAlchemy model.
+    Base user SQLAlchemy model.l
     """
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
-    username = Column("username", String(100), nullable=False, index=True, unique=True)
     email = Column("email", String(100), nullable=False, index=True, unique=True)
     password = Column("password", String(200))
     is_active = Column("is_active", Boolean(), default=False)

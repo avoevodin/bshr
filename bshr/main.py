@@ -6,12 +6,12 @@ import asyncio
 import uvloop
 from fastapi import FastAPI
 from hypercorn.asyncio import serve
+from hypercorn.asyncio.run import uvloop_worker
 from hypercorn.config import Config
 from starlette.middleware.cors import CORSMiddleware
 
-from app.api.api_v1.api import api_router
-from app.core.config import settings
-from app.db.database import app_init_db, app_dispose_db
+from bshr.bshr.api.api_v1.api import api_router
+from bshr.bshr.core.config import settings
 
 OPENAPI_DESCRIPTION = """
 **API for bashare app**
@@ -46,13 +46,13 @@ app = FastAPI(
 @app.on_event("startup")
 async def startup_event() -> None:
     """Startup events function."""
-    await app_init_db(app)
+    pass
 
 
 @app.on_event("shutdown")
 async def shutdown_event() -> None:
     """Shutdown events function."""
-    await app_dispose_db(app)
+    pass
 
 
 if settings.BACKEND_CORS_ORIGINS:
