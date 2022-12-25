@@ -44,8 +44,8 @@ async def user_register(register: Register, request: Request) -> Optional[User]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=(
-                f"User with email/username {register.email}/{register.username} already"
-                " exists"
+                f"User with email (username) {register.email} ({register.username})"
+                " already exists"
             ),
         )
     user_in = UserCreate.parse_obj(register)
@@ -82,4 +82,5 @@ async def read_users(
         List of users if success, None otherwise
     """
     db = request.app.state.db
-    return crud.user.get_multi(db, skip=skip, limit=limit)
+    users_list = await crud.user.get_multi(db, skip=skip, limit=limit)
+    return users_list

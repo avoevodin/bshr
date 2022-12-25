@@ -10,7 +10,8 @@ from app import models
 
 
 async def get_current_user(request: Request, token: str = "") -> models.User:
-    user = crud.user.get_by_username("admin")
+    db = request.app.state.db
+    user = await crud.user.get_by_username(db, username="admin")
     return user
 
 
