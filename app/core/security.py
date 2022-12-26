@@ -10,8 +10,8 @@ Attrs:
     get_password_hash: returns hashed password.
     verify_password: verified plain and hashed passwords.
 """
+import json
 from datetime import timedelta, datetime
-from typing import Union, Any
 
 from jose import jwt
 from passlib.context import CryptContext
@@ -25,9 +25,7 @@ password_hash_ctx = CryptContext(
 )
 
 
-def create_access_token(
-    subject: Union[str, Any], expires_delta: timedelta = None
-) -> str:
+def create_access_token(subject: dict, expires_delta: timedelta = None) -> str:
     """
     Creates access/refresh JWT token.
 
@@ -44,7 +42,7 @@ def create_access_token(
         expire = datetime.utcnow() + timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
-    to_encode = {"exp": expire, "sub": str(subject)}
+    to_encode = {"exp": expire, "sub": json.dumps(subject)}
     encoded_jwt = jwt.encode(
         to_encode, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM
     )

@@ -1,17 +1,41 @@
+import json
 from typing import Optional
 
 from fastapi import HTTPException, Depends
-from sqlalchemy.orm import Session
+from fastapi.security import OAuth2PasswordBearer
+from jose import jwt
+from pydantic import ValidationError
 from starlette import status
 from starlette.requests import Request
 
-import crud.crud_user
-from app import models
+from app import models, crud, schemas
+from app.core.config import settings
+
+reusable_oauth2 = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_STR}{settings.LOGIN_ACCESS_TOKEN_PATH}"
+)
 
 
-async def get_current_user(request: Request, token: str = "") -> models.User:
+async def get_current_user(
+    request: Request, token: str = Depends(reusable_oauth2)
+) -> models.User:
     db = request.app.state.db
-    user = await crud.user.get_by_username(db, username="test")
+    try:
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+        )
+        token_data = schemas.TokenPayload(**payload)
+    except (jwt.JWTError, ValidationError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials.",
+        )
+    token_subject = schemas.TokenSubject.parse_obj(json.loads(token_data.sub))
+    user = await crud.user.get(db, id=int(token_subject.id))
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User hasn't been found."
+        )
     return user
 
 
@@ -28,7 +52,7 @@ async def get_current_active_superuser(
     Returns:
         current user if it's a superuser, otherwise None
     """
-    if not crud.crud_user.is_superuser(current_user):
+    if not crud.user.is_superuser(current_user):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="The user doesn't have enough privileges.",

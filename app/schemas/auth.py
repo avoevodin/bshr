@@ -1,7 +1,7 @@
 """
 Pydantic login schemas.
 """
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, EmailStr
 
@@ -41,9 +41,22 @@ class Token(BaseModel):
         orm_mode = True
 
 
+class TokenSubject(BaseModel):
+    """
+    Token subject schema.
+    """
+
+    id: str
+    username: str
+    email: str
+    jti: str
+    token_type: str
+    scope: List[str]
+
+
 class TokenPayload(BaseModel):
     """
     Token payload schema.
     """
 
-    sub: Optional[int] = None
+    sub: Optional[str] = None
