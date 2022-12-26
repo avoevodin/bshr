@@ -38,6 +38,9 @@ class Settings(BaseSettings):
     SQLALCHEMY_DATABASE_HOST: str
     SQLALCHEMY_DATABASE_PORT: str
 
+    REDIS_HOST: str
+    REDIS_PORT: str
+
     FIRST_SUPERUSER: str
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str

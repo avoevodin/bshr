@@ -12,6 +12,7 @@ from starlette.middleware.cors import CORSMiddleware
 from app.api.api_v1.api import api_router
 from app.core.config import settings
 from app.db.database import app_init_db, app_dispose_db
+from app.db.redis import app_init_redis, app_dispose_redis
 
 OPENAPI_DESCRIPTION = """
 **API for bashare app**
@@ -47,12 +48,14 @@ app = FastAPI(
 async def startup_event() -> None:
     """Startup events function."""
     await app_init_db(app)
+    await app_init_redis(app)
 
 
 @app.on_event("shutdown")
 async def shutdown_event() -> None:
     """Shutdown events function."""
     await app_dispose_db(app)
+    await app_dispose_redis(app)
 
 
 if settings.BACKEND_CORS_ORIGINS:
