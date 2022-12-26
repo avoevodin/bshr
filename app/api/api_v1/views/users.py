@@ -8,8 +8,7 @@ from starlette import status
 from starlette.requests import Request
 
 from app import crud, models, dependencies
-from app.schemas import User, UserCreate
-from app.schemas.login import Register
+from app.schemas import User, UserCreate, Register
 
 router = APIRouter()
 
@@ -24,7 +23,7 @@ router = APIRouter()
 )
 async def user_register(register: Register, request: Request) -> Optional[User]:
     """
-    View function for creation new unprivileged user from registration.
+    Create a new user.
 
     Args:
         register: user data (email, username, password)
@@ -71,7 +70,7 @@ async def read_users(
     ),
 ) -> Optional[List[models.User]]:
     """
-    Get the list of all users.
+    Get list of all users.
     Args:
         request: request instance
         skip: number of users that should be skipped

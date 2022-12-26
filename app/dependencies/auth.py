@@ -11,7 +11,7 @@ from app import models
 
 async def get_current_user(request: Request, token: str = "") -> models.User:
     db = request.app.state.db
-    user = await crud.user.get_by_username(db, username="admin")
+    user = await crud.user.get_by_username(db, username="test")
     return user
 
 
@@ -20,8 +20,9 @@ async def get_current_active_superuser(
     current_user: models.User = Depends(get_current_user),
 ) -> Optional[models.User]:
     """
-    Check if current user is superuser.
+    Returns superuser using passed token.
     Args:
+        request: request instance
         current_user: current user get by token.
 
     Returns:
