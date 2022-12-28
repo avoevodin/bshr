@@ -44,6 +44,28 @@ async def get_current_active_superuser(
     current_user: models.User = Depends(get_current_user),
 ) -> Optional[models.User]:
     """
+    Returns active user using passed token.
+    Args:
+        request: request instance
+        current_user: current user get by token.
+
+    Returns:
+        current user if it's active, otherwise None
+    """
+    if not crud.user.is_active(current_user):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The user is inactive.",
+        )
+
+    return current_user
+
+
+async def get_current_active_superuser(
+    request: Request,
+    current_user: models.User = Depends(get_current_user),
+) -> Optional[models.User]:
+    """
     Returns superuser using passed token.
     Args:
         request: request instance
