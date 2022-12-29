@@ -19,8 +19,8 @@ router = APIRouter()
 
 
 @router.post(
-    settings.LOGIN_ACCESS_TOKEN_PATH,
-    name="login:access_token",
+    "/access-token",
+    name="auth:access_token",
     summary="Login and get an access token.",
     status_code=status.HTTP_200_OK,
     description="User login view.",
