@@ -11,7 +11,7 @@ from starlette import status
 from starlette.requests import Request
 
 from app import schemas, crud
-from app.core import security
+from app.core import auth
 from app.core.config import settings
 from app.db.redis import set_redis_key
 
@@ -74,10 +74,8 @@ async def login_access_token(
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
     token = schemas.Token(
-        access_token=security.create_access_token(access_token, access_token_expires),
-        refresh_token=security.create_access_token(
-            refresh_token, refresh_token_expires
-        ),
+        access_token=auth.create_access_token(access_token, access_token_expires),
+        refresh_token=auth.create_access_token(refresh_token, refresh_token_expires),
         token_type="bearer",
     )
     await set_redis_key(
@@ -88,7 +86,7 @@ async def login_access_token(
 
 @router.post(
     "/token/refresh",
-    name="auth:access_token",
+    name="auth:token",
     summary="Login and get an access token.",
     status_code=status.HTTP_200_OK,
     description="User login view.",
@@ -143,10 +141,8 @@ async def login_refresh_token(
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
     token = schemas.Token(
-        access_token=security.create_access_token(access_token, access_token_expires),
-        refresh_token=security.create_access_token(
-            refresh_token, refresh_token_expires
-        ),
+        access_token=auth.create_access_token(access_token, access_token_expires),
+        refresh_token=auth.create_access_token(refresh_token, refresh_token_expires),
         token_type="bearer",
     )
     await set_redis_key(
