@@ -50,7 +50,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 5
     # 8 days by default
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
-    LOGIN_ACCESS_TOKEN_PATH: str = "/auth/access-token"
+    LOGIN_ACCESS_TOKEN_PATH: str = "/auth/token"
 
 
 settings = Settings()
