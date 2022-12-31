@@ -8,9 +8,18 @@ Attrs:
 import json
 from datetime import timedelta, datetime
 
+from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 
 from app.core.config import settings
+
+reusable_oauth2 = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_STR}{settings.LOGIN_ACCESS_TOKEN_PATH}",
+)
+
+reusable_oauth2_refresh = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_STR}{settings.LOGIN_REFRESH_TOKEN_PATH}",
+)
 
 
 def create_access_token(subject: dict, expires_delta: timedelta = None) -> str:

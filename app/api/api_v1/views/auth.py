@@ -93,7 +93,7 @@ async def login_access_token(
     response_model=schemas.Token,
 )
 async def login_refresh_token(
-    request: Request,
+    request: Request, token: str = Depends(auth.reusable_oauth2_refresh)
 ) -> Optional[schemas.Token]:
     """
     OAuth2 compatible token login, get new access token and refresh token

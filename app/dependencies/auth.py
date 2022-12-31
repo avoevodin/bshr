@@ -2,18 +2,14 @@ import json
 from typing import Optional
 
 from fastapi import HTTPException, Depends
-from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from pydantic import ValidationError
 from starlette import status
 from starlette.requests import Request
 
 from app import models, crud, schemas
+from app.core.auth import reusable_oauth2
 from app.core.config import settings
-
-reusable_oauth2 = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}{settings.LOGIN_ACCESS_TOKEN_PATH}",
-)
 
 
 async def get_current_user(
