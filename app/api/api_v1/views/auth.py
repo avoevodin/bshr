@@ -13,7 +13,7 @@ from starlette.requests import Request
 from app import schemas, crud
 from app.core import auth
 from app.core.config import settings
-from app.db.redis import set_redis_key
+from app.db.redis import set_redis_key, get_redis_key
 
 router = APIRouter()
 
@@ -107,4 +107,11 @@ async def login_refresh_token(
         token data using token schema with refresh and access token if success,
         None otherwise.
     """
-    db = request.app.state.db
+    redis = request.app.state.redis
+    try:
+        res = await get_redis_key(redis, token)
+        if res:
+            print("creating token")
+    except Exception as e:
+        print(e)
+    print(res)

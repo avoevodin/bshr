@@ -33,7 +33,7 @@ async def app_dispose_redis(app: FastAPI) -> None:
     await app.state.redis.close()
 
 
-async def app_get_redis_key(redis: Redis, key: str) -> Optional[str]:
+async def get_redis_key(redis: Redis, key: str) -> Optional[str]:
     """
     Read redis key.
 
