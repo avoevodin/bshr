@@ -8,10 +8,14 @@ Attrs:
 import json
 from datetime import timedelta, datetime
 
+from aioredis import Redis
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 
+from app import schemas
+from app.core import auth
 from app.core.config import settings
+from app.db.redis import set_redis_key
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}{settings.LOGIN_ACCESS_TOKEN_PATH}",
@@ -22,7 +26,26 @@ reusable_oauth2_refresh = OAuth2PasswordBearer(
 )
 
 
-def create_access_token(subject: dict, expires_delta: timedelta = None) -> str:
+def create_tokens_data(redis: Redis, token_subject: dict):
+    access_token = schemas.TokenSubject.parse_obj(
+        {**token_subject, "token_type": "access_token"}
+    )
+    refresh_token = schemas.TokenSubject.parse_obj(
+        {**token_subject, "token_type": "refresh_token"}
+    )
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
+    token = schemas.Token(
+        access_token=auth.create_access_token(access_token, access_token_expires),
+        refresh_token=auth.create_access_token(refresh_token, refresh_token_expires),
+        token_type="bearer",
+    )
+    return token
+
+
+def create_access_token(
+    subject: schemas.TokenSubject, expires_delta: timedelta = None
+) -> str:
     """
     Creates access/refresh JWT token.
 
@@ -39,7 +62,7 @@ def create_access_token(subject: dict, expires_delta: timedelta = None) -> str:
         expire = datetime.utcnow() + timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
-    to_encode = {"exp": expire, "sub": json.dumps(subject)}
+    to_encode = {"exp": expire, "sub": json.dumps(subject.dict())}
     encoded_jwt = jwt.encode(
         to_encode, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM
     )
@@ -56,4 +79,4 @@ def decode_token(token: str) -> dict:
     Returns:
         dict of decoded data (key, value)
     """
-    jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+    return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])

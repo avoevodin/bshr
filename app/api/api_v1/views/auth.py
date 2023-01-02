@@ -2,6 +2,7 @@
 Authentication handlers module.
 """
 import uuid
+import json
 from datetime import timedelta
 from typing import Optional
 
@@ -12,6 +13,7 @@ from starlette.requests import Request
 
 from app import schemas, crud
 from app.core import auth
+from app.schemas import TokenSubject, TokenPayload
 from app.core.config import settings
 from app.db.redis import set_redis_key, get_redis_key
 
@@ -42,6 +44,7 @@ async def login_access_token(
         None otherwise.
     """
     db = request.app.state.db
+    redis = request.app.state.redis
     username = form_data.username
     password = form_data.password
 
@@ -69,18 +72,9 @@ async def login_access_token(
     if crud.user.is_superuser(user):
         token_subject.update({"scope": ["admin"]})
 
-    access_token = {**token_subject, "token_type": "access_token"}
-    refresh_token = {**token_subject, "token_type": "refresh_token"}
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    token = auth.create_tokens_data(redis, token_subject)
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
-    token = schemas.Token(
-        access_token=auth.create_access_token(access_token, access_token_expires),
-        refresh_token=auth.create_access_token(refresh_token, refresh_token_expires),
-        token_type="bearer",
-    )
-    await set_redis_key(
-        request.app.state.redis, token.refresh_token, "1", refresh_token_expires
-    )
+    await set_redis_key(redis, token.refresh_token, user.id, refresh_token_expires)
     return token
 
 
@@ -110,8 +104,14 @@ async def login_refresh_token(
     redis = request.app.state.redis
     try:
         res = await get_redis_key(redis, token)
-        if res:
-            print("creating token")
+        payload = auth.decode_token(token)
+        token_data = TokenPayload.parse_obj(payload)
+        token_sub = TokenSubject.parse_obj(json.loads(token_data.sub))
+        if int(res.decode()) == token_sub.id:
+            token = auth.create_tokens_data(redis, token_sub.dict())
     except Exception as e:
-        print(e)
-    print(res)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid refresh token.",
+        )
+    return token

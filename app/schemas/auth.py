@@ -46,7 +46,7 @@ class TokenSubject(BaseModel):
     Token subject schema.
     """
 
-    id: str
+    id: int
     username: str
     email: str
     jti: str
