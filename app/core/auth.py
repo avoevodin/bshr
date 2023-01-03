@@ -26,7 +26,7 @@ reusable_oauth2_refresh = OAuth2PasswordBearer(
 )
 
 
-def create_tokens_data(redis: Redis, token_subject: dict):
+def create_tokens(token_subject: dict):
     access_token = schemas.TokenSubject.parse_obj(
         {**token_subject, "token_type": "access_token"}
     )

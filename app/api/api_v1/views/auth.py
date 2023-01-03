@@ -72,7 +72,7 @@ async def login_access_token(
     if crud.user.is_superuser(user):
         token_subject.update({"scope": ["admin"]})
 
-    token = auth.create_tokens_data(redis, token_subject)
+    token = auth.create_tokens(token_subject)
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
     await set_redis_key(redis, token.refresh_token, user.id, refresh_token_expires)
     return token
@@ -108,7 +108,11 @@ async def login_refresh_token(
         token_data = TokenPayload.parse_obj(payload)
         token_sub = TokenSubject.parse_obj(json.loads(token_data.sub))
         if int(res.decode()) == token_sub.id:
-            token = auth.create_tokens_data(redis, token_sub.dict())
+            token = auth.create_tokens(token_sub.dict())
+        refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
+        await set_redis_key(
+            redis, token.refresh_token, token_sub.id, refresh_token_expires
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
