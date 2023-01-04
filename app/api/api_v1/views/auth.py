@@ -90,12 +90,11 @@ async def login_refresh_token(
     request: Request, token: str = Depends(auth.reusable_oauth2_refresh)
 ) -> Optional[schemas.Token]:
     """
-    OAuth2 compatible token login, get new access token and refresh token
-    using passed refresh token.
+    Generate access and update refresh token by passed refresh token.
 
     Args:
         request: request instance
-        form_data: oauth2 form data
+        token: jwt refresh token
 
     Returns:
         token data using token schema with refresh and access token if success,
