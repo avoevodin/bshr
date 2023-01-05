@@ -16,6 +16,7 @@ from app.core import auth
 from app.schemas import TokenSubject, TokenPayload
 from app.core.config import settings
 from app.db.redis import set_redis_key, get_redis_key
+from jose.exceptions import JWTError
 
 router = APIRouter()
 
@@ -106,13 +107,13 @@ async def login_refresh_token(
         payload = auth.decode_token(token)
         token_data = TokenPayload.parse_obj(payload)
         token_sub = TokenSubject.parse_obj(json.loads(token_data.sub))
-        if int(res.decode()) == token_sub.id:
-            token = auth.create_tokens(token_sub.dict())
+        assert int(res.decode()) == token_sub.id
+        token = auth.create_tokens(token_sub.dict())
         refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
         await set_redis_key(
             redis, token.refresh_token, token_sub.id, refresh_token_expires
         )
-    except Exception as e:
+    except JWTError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid refresh token.",

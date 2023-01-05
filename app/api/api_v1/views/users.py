@@ -7,8 +7,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from starlette import status
 from starlette.requests import Request
 
-from app import crud, models, dependencies
-from app.schemas import User, UserCreate, Register
+from app import crud, models, dependencies, schemas
 
 router = APIRouter()
 
@@ -19,9 +18,11 @@ router = APIRouter()
     summary="Registry a new user",
     status_code=status.HTTP_200_OK,
     description="Registers new user",
-    response_model=User,
+    response_model=schemas.User,
 )
-async def user_register(register: Register, request: Request) -> Optional[User]:
+async def user_register(
+    register: schemas.Register, request: Request
+) -> Optional[schemas.User]:
     """
     Create a new user.
 
@@ -59,7 +60,7 @@ async def user_register(register: Register, request: Request) -> Optional[User]:
     summary="Get users list",
     status_code=status.HTTP_200_OK,
     description="Get all users list",
-    response_model=List[User],
+    response_model=List[schemas.User],
 )
 async def read_users(
     request: Request,
@@ -71,6 +72,7 @@ async def read_users(
 ) -> Optional[List[models.User]]:
     """
     Get list of all users.
+
     Args:
         request: request instance
         skip: number of users that should be skipped
@@ -83,3 +85,28 @@ async def read_users(
     db = request.app.state.db
     users_list = await crud.user.get_multi(db, skip=skip, limit=limit)
     return users_list
+
+
+@router.get(
+    "/me",
+    name="users:me",
+    summary="Get current active user",
+    status_code=status.HTTP_200_OK,
+    description="Get current user if it's active",
+    response_model=schemas.User,
+)
+async def get_user_me(
+    request: Request,
+    current_user: schemas.User = Depends(dependencies.get_current_active_user),
+) -> models.User:
+    """
+    Returns current user by token if it's active.
+
+    Args:
+        request: request instance
+        current_user: current user get by token.
+
+    Returns:
+        current user by token if it's active, None otherwise.
+    """
+    return current_user
