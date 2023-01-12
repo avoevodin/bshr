@@ -6,11 +6,11 @@ from typing import Optional, Union, Dict, Any
 from sqlalchemy.future import select
 from sqlalchemy.orm import Session
 
-from app.core.security import password_hash_ctx
+from app.core.security import password_hash_ctx, verify_password
 from app.crud.base import CRUDBase
 from app.models import User
 from app.schemas import UserCreate, UserUpdate
-from app.schemas.login import Register
+from app.schemas.auth import Register
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -83,49 +83,61 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         self, db: Session, *, email: str, password: str
     ) -> Optional[User]:
         """
-        TODO
         Authenticate user by email.
 
-        :param db: SQLAlchemy session
-        :param email: user email string
-        :param password: password
-        :return:
+        Args:
+            db: SQLAlchemy session
+            email: user email string
+            password: password
+
+        Returns:
+            user if auth is success, None otherwise
         """
-        pass
+        user = await self.get_by_email(db, email=email)
+        if not user:
+            return None
+        if not verify_password(password, user.password):
+            return None
+        return user
 
     async def authenticate_by_username(
         self, db: Session, *, username: str, password: str
-    ):
+    ) -> Optional[User]:
         """
-        TODO
-        Authenticate user by username.
+        Authenticate user by email.
 
-        :param db: SQLAlchemy session
-        :param email: user email string
-        :param password: password
-        :return:
+        Args:
+            db: SQLAlchemy session
+            username: user email string
+            password: password
+
+        Returns:
+            user if auth is success, None otherwise
         """
-        pass
+        user = await self.get_by_username(db, username=username)
+        if not user:
+            return None
+        if not verify_password(password, user.password):
+            return None
+        return user
 
+    @staticmethod
+    def is_active(usr: User) -> bool:
+        """
+        Check if user is active.
+        :param usr: user object
+        :return: bool
+        """
+        return usr.is_active
 
-@staticmethod
-def is_active(usr: User) -> bool:
-    """
-    Check if user is active.
-    :param usr: user object
-    :return: bool
-    """
-    return usr.is_active
-
-
-@staticmethod
-def is_superuser(usr: User) -> bool:
-    """
-    Check if user is superuser.
-    :param usr: user object
-    :return: bool
-    """
-    return usr.is_superuser
+    @staticmethod
+    def is_superuser(usr: User) -> bool:
+        """
+        Check if user is superuser.
+        :param usr: user object
+        :return: bool
+        """
+        return usr.is_superuser
 
 
 user = CRUDUser(User)

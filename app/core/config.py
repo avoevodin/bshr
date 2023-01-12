@@ -38,6 +38,9 @@ class Settings(BaseSettings):
     SQLALCHEMY_DATABASE_HOST: str
     SQLALCHEMY_DATABASE_PORT: str
 
+    REDIS_HOST: str
+    REDIS_PORT: str
+
     FIRST_SUPERUSER: str
     FIRST_SUPERUSER_EMAIL: str
     FIRST_SUPERUSER_PASSWORD: str
@@ -47,6 +50,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 5
     # 8 days by default
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
+    LOGIN_ACCESS_TOKEN_PATH: str = "/auth/token"
+    LOGIN_REFRESH_TOKEN_PATH: str = "/auth/token/refresh"
 
 
 settings = Settings()
