@@ -7,7 +7,7 @@ def random_lower_string(str_length: int = 32) -> str:
     Returns random lowercase string.
 
     Args:
-        str_length: string length
+        str_length: string length, 32 default
 
     Returns:
         random lowercase string
