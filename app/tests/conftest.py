@@ -1,3 +1,10 @@
+"""
+Pytest application configuration.
+
+Args:
+
+"""
+
 from typing import List
 
 from alembic.config import Config
