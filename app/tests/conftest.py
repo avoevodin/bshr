@@ -2,11 +2,12 @@
 Pytest application configuration.
 
 Args:
-
+    - engine (database engine instance with applied migrations)
 """
 
 from typing import List
 
+import pytest_asyncio
 from alembic.config import Config
 from alembic.operations import Operations
 from alembic.runtime.environment import EnvironmentContext
@@ -16,6 +17,8 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.future import Connection
 
 from app.db import Base
+from app.db.session import session, engine
+from app.utils.database import get_sqlalchemy_db_uri
 
 
 def do_upgrade(revision: str, context: MigrationContext) -> List[RevisionStep]:
@@ -57,12 +60,11 @@ def do_run_migrations(connection: Connection, alembic_env: EnvironmentContext) -
             migration_context.run_migrations()
 
 
-async def async_migrate(engine: AsyncEngine, alembic_env: EnvironmentContext) -> None:
+async def async_migrate(alembic_env: EnvironmentContext) -> None:
     """
     Apply all migrations.
 
     Args:
-        engine: async engine with connection
         alembic_env: alembic environment context
 
     Returns:
@@ -72,7 +74,7 @@ async def async_migrate(engine: AsyncEngine, alembic_env: EnvironmentContext) ->
         await conn.run_sync(do_run_migrations, alembic_env)
 
 
-async def migrate(engine: AsyncEngine, url: str) -> None:
+async def migrate(url: str) -> None:
     alembic_conf = Config()
     alembic_conf.set_main_option("script_location", "alembic")
     alembic_conf.set_main_option("url", url)
@@ -82,15 +84,27 @@ async def migrate(engine: AsyncEngine, url: str) -> None:
     await async_migrate(engine, alembic_env)
 
 
-async def disconnect(engine: AsyncEngine) -> None:
+async def disconnect() -> None:
     """
     Dispose a database engine and destroy all of its connections.
 
     Args:
-        engine: async sqlalchemy engine to be disposed
 
     Returns:
         None
     """
 
+    await engine.dispose()
+
+
+@pytest_asyncio.fixture(scope="session")
+async def engine() -> AsyncEngine:
+    """
+    Create async engine and run alembic migrations on database.
+
+    Returns:
+        sqlalchemy async engine
+    """
+    await migrate(engine, get_sqlalchemy_db_uri())
+    yield engine
     await engine.dispose()
