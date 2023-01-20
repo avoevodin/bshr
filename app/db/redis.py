@@ -4,7 +4,7 @@ import aioredis
 from aioredis import Redis
 from fastapi import FastAPI
 
-from utils.database import get_redis_db_uri
+from app.utils.database import get_redis_db_uri
 
 
 async def app_init_redis(app: FastAPI) -> None:

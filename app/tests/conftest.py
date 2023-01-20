@@ -13,11 +13,13 @@ from alembic.operations import Operations
 from alembic.runtime.environment import EnvironmentContext
 from alembic.runtime.migration import MigrationContext, RevisionStep
 from alembic.script import ScriptDirectory
+from asgi_lifespan import LifespanManager
+from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.future import Connection
 
 from app.db import Base
-from app.db.session import session, engine
+from app.db.session import engine
 from app.utils.database import get_sqlalchemy_db_uri
 
 
@@ -108,3 +110,23 @@ async def engine() -> AsyncEngine:
     await migrate(engine, get_sqlalchemy_db_uri())
     yield engine
     await engine.dispose()
+
+
+@pytest_asyncio.fixture(scope="session")
+async def get_app() -> FastAPI:
+    """
+    Creates FastAPI test application with initialized databases.
+
+    Returns:
+        FastAPI wsgi application instance
+    """
+    from app.main import app
+    from app.db.database import app_init_db, app_dispose_db
+    from app.db.redis import app_init_redis, app_dispose_redis
+
+    await app_init_db(app)
+    await app_init_redis(app)
+    async with LifespanManager(app):
+        yield app
+    await app_dispose_db(app)
+    await app_dispose_redis(app)
