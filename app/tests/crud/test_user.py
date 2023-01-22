@@ -1,3 +1,4 @@
+import pytest
 from sqlalchemy.orm import Session
 
 from app import crud
@@ -6,7 +7,8 @@ from app.schemas.user import UserCreate
 from app.tests.utils.utils import random_email, random_lower_string
 
 
-def test_create_user(db: Session) -> None:
+@pytest.mark.asyncio
+async def test_create_user(db: Session) -> None:
     """
     Test create user crud operation
 
@@ -20,7 +22,7 @@ def test_create_user(db: Session) -> None:
     email = random_email()
     password = random_lower_string()
     user_in = UserCreate(username=username, email=email, password=password)
-    user = crud.user.create(db, obj_in=user_in)
+    user = await crud.user.create(db, obj_in=user_in)
     assert user.username == username
     assert user.email == email
     assert hasattr(user, "password")

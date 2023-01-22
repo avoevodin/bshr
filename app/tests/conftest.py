@@ -104,17 +104,17 @@ async def disconnect() -> None:
 # async def
 
 
-@pytest_asyncio.fixture(scope="session")
-async def engine() -> AsyncEngine:
-    """
-    Create async engine and run alembic migrations on database.
-
-    Returns:
-        sqlalchemy async engine
-    """
-    await migrate(get_sqlalchemy_db_uri())
-    yield engine
-    await engine.dispose()
+# @pytest_asyncio.fixture(scope="session")
+# async def engine() -> AsyncEngine:
+#     """
+#     Create async engine and run alembic migrations on database.
+#
+#     Returns:
+#         sqlalchemy async engine
+#     """
+#     await migrate(get_sqlalchemy_db_uri())
+#     yield engine
+#     await engine.dispose()
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -123,7 +123,7 @@ async def db() -> AsyncSession:
     Create async engine and run alembic migrations on database.
 
     Returns:
-        sqlalchemy async engine
+        sqlalchemy async session
     """
     await migrate(get_sqlalchemy_db_uri())
     yield session
@@ -154,12 +154,6 @@ async def get_app() -> FastAPI:
         FastAPI wsgi application instance
     """
     from app.main import app
-    from app.db.database import app_init_db, app_dispose_db
-    from app.db.redis import app_init_redis, app_dispose_redis
 
-    # await app_init_db(app)
-    # await app_init_redis(app)
     async with LifespanManager(app):
         yield app
-    # await app_dispose_db(app)
-    # await app_dispose_redis(app)
