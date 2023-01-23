@@ -5,6 +5,8 @@ Args:
     - engine (database engine instance with applied migrations)
 """
 import asyncio
+import pathlib
+import sys
 from asyncio import AbstractEventLoop
 from typing import List
 
@@ -17,12 +19,15 @@ from alembic.runtime.migration import MigrationContext, RevisionStep
 from alembic.script import ScriptDirectory
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.future import Connection
+from sqlalchemy.orm import sessionmaker
 
 from app.db import Base
-from app.db.session import engine, session
 from app.utils.database import get_sqlalchemy_db_uri
+
+BASE_PATH = pathlib.Path(__file__).parent.parent
+sys.path.append(str(BASE_PATH))
 
 
 def do_upgrade(revision: str, context: MigrationContext) -> List[RevisionStep]:
@@ -64,11 +69,12 @@ def do_run_migrations(connection: Connection, alembic_env: EnvironmentContext) -
             migration_context.run_migrations()
 
 
-async def async_migrate(alembic_env: EnvironmentContext) -> None:
+async def async_migrate(engine: AsyncEngine, alembic_env: EnvironmentContext) -> None:
     """
     Apply all migrations.
 
     Args:
+        engine: async engine with connection
         alembic_env: alembic environment context
 
     Returns:
@@ -78,17 +84,27 @@ async def async_migrate(alembic_env: EnvironmentContext) -> None:
         await conn.run_sync(do_run_migrations, alembic_env)
 
 
-async def migrate(url: str) -> None:
+async def migrate(engine: AsyncEngine, url: str) -> None:
+    """
+    Read alembic config and create environment context.
+
+    Args:
+        engine: async engine with connection
+        url: url connection string
+
+    Returns:
+        None
+    """
     alembic_conf = Config()
     alembic_conf.set_main_option("script_location", "alembic")
     alembic_conf.set_main_option("url", url)
     alembic_script = ScriptDirectory.from_config(alembic_conf)
     alembic_env = EnvironmentContext(alembic_conf, alembic_script)
 
-    await async_migrate(alembic_env)
+    await async_migrate(engine, alembic_env)
 
 
-async def disconnect() -> None:
+async def disconnect(engine: AsyncEngine) -> None:
     """
     Dispose a database engine and destroy all of its connections.
 
@@ -101,31 +117,17 @@ async def disconnect() -> None:
     await engine.dispose()
 
 
-# async def
-
-
-# @pytest_asyncio.fixture(scope="session")
-# async def engine() -> AsyncEngine:
-#     """
-#     Create async engine and run alembic migrations on database.
-#
-#     Returns:
-#         sqlalchemy async engine
-#     """
-#     await migrate(get_sqlalchemy_db_uri())
-#     yield engine
-#     await engine.dispose()
-
-
 @pytest_asyncio.fixture(scope="session")
-async def db() -> AsyncSession:
+async def db(engine: AsyncEngine) -> AsyncSession:
     """
     Create async engine and run alembic migrations on database.
 
     Returns:
         sqlalchemy async session
     """
-    await migrate(get_sqlalchemy_db_uri())
+    session = sessionmaker(
+        engine, expire_on_commit=False, autoflush=False, class_=AsyncSession
+    )
     yield session
 
 
@@ -157,3 +159,43 @@ async def get_app() -> FastAPI:
 
     async with LifespanManager(app):
         yield app
+
+
+@pytest.fixture(scope="session")
+def db_test_url() -> str:
+    """
+    Generate in memory sqlite db connect url for test purposes.
+
+    Returns:
+        url string for test database connection
+    """
+    return "sqlite+aiosqlite://?cache=shared"  # noqa
+
+
+@pytest.fixture(scope="session")
+def redis_test_url() -> str:
+    """
+    Generate test string for redis connection.
+
+    Returns:
+        url string for redis test database connection
+    """
+    return "redis://127.0.0.1:6379/0"  # noqa
+
+
+@pytest_asyncio.fixture(scope="session")
+async def engine(db_test_url: str) -> AsyncEngine:
+    """
+    Create async engine and run alembic migrations on database.
+
+    Args:
+        database_test_url: test db connection url
+
+    Returns:
+        SQLAlchemy async engine
+    """
+    url = db_test_url
+    engine = create_async_engine(url, echo=False)
+    await migrate(engine, url)
+    yield engine
+    await engine.dispose()

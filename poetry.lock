@@ -20,6 +20,18 @@ typing-extensions = "*"
 hiredis = ["hiredis (>=1.0)"]
 
 [[package]]
+name = "aiosqlite"
+version = "0.18.0"
+description = "asyncio bridge to the standard sqlite3 module"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "aiosqlite-0.18.0-py3-none-any.whl", hash = "sha256:c3511b841e3a2c5614900ba1d179f366826857586f78abd75e7cbeb88e75a557"},
+    {file = "aiosqlite-0.18.0.tar.gz", hash = "sha256:faa843ef5fb08bafe9a9b3859012d3d9d6f77ce3637899de20606b7fc39aa213"},
+]
+
+[[package]]
 name = "alembic"
 version = "1.9.0"
 description = "A database migration tool for SQLAlchemy."
@@ -1436,4 +1448,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "74e485a3490051af6ca66093e5a518a2db7abff85059db89e192a631a3413676"
+content-hash = "e21e1beb5cd9d029132b62e25c662b11dd14976d3f0ea293780985c7a6818e87"
