@@ -125,9 +125,10 @@ async def db(engine: AsyncEngine) -> AsyncSession:
     Returns:
         sqlalchemy async session
     """
-    session = sessionmaker(
+    async_session = sessionmaker(
         engine, expire_on_commit=False, autoflush=False, class_=AsyncSession
     )
+    session = async_session(bind=engine)
     yield session
 
 
