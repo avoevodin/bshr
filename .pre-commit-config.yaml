@@ -20,7 +20,9 @@ repos:
         always_run: true
       - id: coverage
         name: coverage
-        entry: coverage report -m --fail-under=100
+        entry: coverage report
+        args:
+          - --config=setup.cfg
         language: python
         types:
           - python
