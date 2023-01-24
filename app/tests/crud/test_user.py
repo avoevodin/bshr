@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy.orm import Session
 
 from app import crud
-from app.core.security import password_hash_ctx
+from app.core.security import verify_password
 from app.schemas.user import UserCreate
 from app.tests.utils.utils import random_email, random_lower_string
 
@@ -26,4 +26,4 @@ async def test_create_user(db: Session) -> None:
     assert user.username == username
     assert user.email == email
     assert hasattr(user, "password")
-    assert password_hash_ctx.hash(password) == user.password
+    assert verify_password(password, user.password)

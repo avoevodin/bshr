@@ -22,4 +22,4 @@ def random_email() -> str:
     Returns:
         random email string
     """
-    return f"{random_lower_string()}@{random_lower_string()}.com"
+    return f"{random_lower_string(8)}@{random_lower_string(5)}.com"
