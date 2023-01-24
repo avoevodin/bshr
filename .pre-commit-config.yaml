@@ -20,7 +20,7 @@ repos:
         always_run: true
       - id: coverage
         name: coverage
-        entry: coverage report -m
+        entry: coverage report -m  --fail-under=10
         language: python
         types:
           - python
