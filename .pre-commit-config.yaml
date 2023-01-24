@@ -20,9 +20,7 @@ repos:
         always_run: true
       - id: coverage
         name: coverage
-        entry: coverage report
-        args:
-          - --config=setup.cfg
+        entry: coverage report -m
         language: python
         types:
           - python
