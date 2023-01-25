@@ -1,5 +1,8 @@
 """
-Project config module
+Project config module.
+
+Attrs:
+    settings: instance of main Settings class.
 """
 import secrets
 from typing import List, Union
@@ -9,7 +12,7 @@ from pydantic import BaseSettings, AnyHttpUrl, validator
 
 class Settings(BaseSettings):
     """
-    Main class for all settings.s
+    Main class for all settings.
     """
 
     API_V1_STR: str = "/api/v1"
@@ -20,6 +23,15 @@ class Settings(BaseSettings):
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[str, List[str]]:
+        """
+        Validate and assemble cors origins for BACKEND_CORS_ORIGINS setting.
+
+        Args:
+            v: list of cors origins.
+
+        Returns:
+            validated list of cors origins if it's valid, otherwise None.
+        """
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
         elif isinstance(v, (list, str)):
@@ -27,6 +39,10 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     class Config:
+        """
+        Nested config class.
+        """
+
         case_sensitive = True
 
     PROJECT_NAME: str = "Bashare"

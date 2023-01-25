@@ -7,9 +7,9 @@ Attrs:
 from app.core.config import settings
 
 
-def get_sqlalchemy_db_uri():
+def get_sqlalchemy_db_uri() -> str:
     """
-    Returns SQLAlchemy database uri using settings.
+    Return SQLAlchemy database uri using settings.
 
     Returns:
         SQLAlchemy database uri string
@@ -22,9 +22,9 @@ def get_sqlalchemy_db_uri():
     )
 
 
-def get_redis_db_uri():
+def get_redis_db_uri() -> str:
     """
-    Returns Redis database uri using settings.
+    Return Redis database uri using settings.
 
     Returns:
         Redis database uri string

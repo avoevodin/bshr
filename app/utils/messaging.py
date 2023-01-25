@@ -1,17 +1,17 @@
 """
 Common utilities for service communicates.
 """
+from app import schemas
 
 
-async def send_register_confirmation_message(user_in):
+async def send_register_confirmation_message(user_in: schemas.UserCreate) -> None:
     """
     Send register confirmation message for the new user.
 
-    Returns:
+    Args:
+        user_in: user data
 
+    Returns:
+        None
     """
-    # Temporary send only email.
-    # if settings.EMAILS_ENABLED and user_in.email:
-    #     send_new_account_email(
-    #         email_to=user_in.email, username=user_in.email, password=user_in.password
-    #     )
+    pass

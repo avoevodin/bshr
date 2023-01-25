@@ -1,5 +1,9 @@
+"""
+SQLAlchemy async session initialization module.
+"""
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+
 from app.utils.database import get_sqlalchemy_db_uri
 
 engine = create_async_engine(

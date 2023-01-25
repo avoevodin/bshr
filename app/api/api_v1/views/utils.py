@@ -4,10 +4,14 @@ Endpoints of arbitrary utilities.
 Attrs:
     health_check: check connections to databases.
 """
-from fastapi import APIRouter, HTTPException, Depends
+import uuid
+
+from fastapi import APIRouter, HTTPException
 from sqlalchemy.exc import InterfaceError
 from starlette import status
 from starlette.requests import Request
+
+from app.db.redis import get_redis_key
 
 router = APIRouter()
 
@@ -24,31 +28,22 @@ router = APIRouter()
 async def health_check(request: Request) -> dict:
     """
     Check connections to databases.
-    :param request:
-    :return:
+
+    Args:
+        request: request instance
+
+    Returns:
+        dict with key detail and value OK if success, otherwise None
     """
     db = request.app.state.db
-
+    redis = request.app.state.redis
     try:
         res = await db.execute("SELECT 1")
         one = res.scalar()
         assert one == 1
+        await get_redis_key(redis, uuid.uuid4().hex)
         return {"detail": "OK"}
     except (ConnectionRefusedError, InterfaceError, ConnectionError):
         raise HTTPException(
             detail="connection failed", status_code=status.HTTP_503_SERVICE_UNAVAILABLE
         )
-
-
-async def common_parameters(q: str = "", skip: int = 0, limit: int = 100):
-    return {"q": q, "skip": skip, "limit": limit}
-
-
-@router.get("/items/")
-async def read_items(commons: dict = Depends(common_parameters)):
-    return commons
-
-
-@router.get("/users/")
-async def read_users(commons: dict = Depends(common_parameters)):
-    return commons

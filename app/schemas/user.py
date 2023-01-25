@@ -19,7 +19,7 @@ from app.utils.user import validate_username
 
 class UserBase(BaseModel):
     """
-    Shared user properties
+    Shared user properties.
     """
 
     username: Optional[str] = None
@@ -59,7 +59,9 @@ class UserUpdate(UserBase):
     """
 
     email: EmailStr = None
+    username: str = None
     password: Optional[constr(min_length=8, max_length=200)]
+    is_active: bool = None
 
 
 class UserInDBBase(UserBase):
@@ -73,7 +75,7 @@ class UserInDBBase(UserBase):
 
     class Config:
         """
-        Config for user schema
+        Config for user schema.
         """
 
         orm_mode = True

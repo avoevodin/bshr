@@ -1,3 +1,12 @@
+"""
+Redis database initialization methods.
+
+Attrs:
+    app_init_redis: redis initialization.
+    app_dispose_redis: redis disposing.
+    get_redis_key: get redis value by key.
+    set_redis_key: set redis value.
+"""
 from typing import Optional
 
 import aioredis

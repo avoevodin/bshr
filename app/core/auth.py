@@ -8,14 +8,12 @@ Attrs:
 import json
 from datetime import timedelta, datetime
 
-from aioredis import Redis
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 
 from app import schemas
 from app.core import auth
 from app.core.config import settings
-from app.db.redis import set_redis_key
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}{settings.LOGIN_ACCESS_TOKEN_PATH}",
@@ -26,7 +24,17 @@ reusable_oauth2_refresh = OAuth2PasswordBearer(
 )
 
 
-def create_tokens(token_subject: dict):
+def create_tokens(token_subject: dict) -> schemas.Token:
+    """
+    Create token object with access and refresh tokens included.
+
+    Args:
+        token_subject: subject dict to be added to tokens
+
+
+    Returns:
+        pydantic token object with access and refresh token.
+    """
     access_token = schemas.TokenSubject.parse_obj(
         {**token_subject, "token_type": "access_token"}
     )
@@ -47,7 +55,7 @@ def create_access_token(
     subject: schemas.TokenSubject, expires_delta: timedelta = None
 ) -> str:
     """
-    Creates access/refresh JWT token.
+    Create access/refresh JWT token.
 
     Args:
         subject: subject dict to be added to token

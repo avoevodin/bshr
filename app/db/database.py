@@ -7,7 +7,6 @@ Attrs:
 """
 from fastapi import FastAPI
 
-
 from app import crud, schemas
 from app.core.config import settings
 from app.db.session import session
@@ -23,7 +22,6 @@ async def app_init_db(app: FastAPI) -> None:
     Returns:
         None
     """
-
     app.state.db = session
 
     if settings.FIRST_SUPERUSER_EMAIL:
