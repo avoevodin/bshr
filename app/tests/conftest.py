@@ -96,9 +96,6 @@ async def migrate(engine: AsyncEngine, url: str) -> None:
     """
     alembic_conf = Config()
     alembic_conf.set_main_option("script_location", f"{BASE_PATH}/alembic")
-    print(
-        "*" * 33, alembic_conf.get_main_option("script_location"), " path ", BASE_PATH
-    )
     alembic_conf.set_main_option("url", url)
     alembic_script = ScriptDirectory.from_config(alembic_conf)
     alembic_env = EnvironmentContext(alembic_conf, alembic_script)
