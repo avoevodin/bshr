@@ -24,7 +24,6 @@ from sqlalchemy.future import Connection
 from sqlalchemy.orm import sessionmaker
 
 from app.db import Base
-from app.utils.database import get_sqlalchemy_db_uri
 
 BASE_PATH = pathlib.Path(__file__).parent.parent
 sys.path.append(str(BASE_PATH))
@@ -96,7 +95,10 @@ async def migrate(engine: AsyncEngine, url: str) -> None:
         None
     """
     alembic_conf = Config()
-    alembic_conf.set_main_option("script_location", "alembic")
+    alembic_conf.set_main_option("script_location", f"{BASE_PATH}/alembic")
+    print(
+        "*" * 33, alembic_conf.get_main_option("script_location"), " path ", BASE_PATH
+    )
     alembic_conf.set_main_option("url", url)
     alembic_script = ScriptDirectory.from_config(alembic_conf)
     alembic_env = EnvironmentContext(alembic_conf, alembic_script)
