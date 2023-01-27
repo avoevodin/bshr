@@ -17,7 +17,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.8', '3.9', '3.10']
 
     steps:
     - name: Checkout repository
@@ -36,8 +36,6 @@ jobs:
         pip install -r requirements-dev.txt
     - name: Lint with flake8
       run: |
-        which python
-        which flake8
         python -m flake8 --config setup.cfg --count --show-source --statistics
     - name: Pytest with Coverage
       run: |
