@@ -1,7 +1,7 @@
 """
 User CRUD methods.
 """
-from typing import Optional, Union, Dict, Any
+from typing import Optional
 
 from sqlalchemy.future import select
 from sqlalchemy.orm import Session
@@ -10,17 +10,23 @@ from app.core.security import password_hash_ctx, verify_password
 from app.crud.base import CRUDBase
 from app.models import User
 from app.schemas import UserCreate, UserUpdate
-from app.schemas.auth import Register
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
+    """
+    User CRUD base class.
+    """
+
     async def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
         """
         Get user by email.
 
-        :param db: SQLAlchemy session
-        :param email: email string
-        :return: User
+        Args:
+            db: SQLAlchemy session
+            email: email string
+
+        Returns:
+            optionally User model instance
         """
         res = await db.execute(select(self.model).filter(self.model.email == email))
         found_user = res.scalar_one_or_none()
@@ -30,9 +36,12 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Get user by username.
 
-        :param db: SQLAlchemy session
-        :param username: username string
-        :return: User
+        Args:
+            db: SQLAlchemy session
+            username: username string
+
+        Returns:
+            optionally User model instance
         """
         res = await db.execute(
             select(self.model).filter(self.model.username == username)
@@ -40,43 +49,39 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         found_user = res.scalar_one_or_none()
         return found_user
 
-    async def create(self, db: Session, *, obj_in: Register) -> User:
+    async def create(self, db: Session, *, obj_in: UserCreate) -> User:
         """
         Create user.
 
-        :param db: SQLAlchemy session
-        :param obj_in: user create schema
-        :return:  user model
+        Args:
+            db: SQLAlchemy session
+            obj_in: user create schema
+
+        Returns:
+            User model instance
         """
-        obj_in.password = password_hash_ctx.hash(obj_in.password)
-        user_db = User(**obj_in.dict())
-        db.add(user_db)
-        await db.commit()
-        await db.refresh(user_db)
+        hashed_password = password_hash_ctx.hash(obj_in.password)
+        obj_in.password = hashed_password
+        user_db = await super().create(db, obj_in=obj_in)
         return user_db
 
-    async def update(
-        self, db: Session, *, obj_db: User, obj_in: Union[UserUpdate, Dict[str, Any]]
-    ) -> User:
+    async def update(self, db: Session, *, obj_db: User, obj_in: UserUpdate) -> User:
         """
         Update user.
 
-        :param db: SQLAlchemy session
-        :param obj_db: user db model
-        :param obj_in: user update data
-        :return: user model
+        Args:
+            db: SQLAlchemy session
+            obj_db: user db model
+            obj_in: user update data
+
+        Returns:
+            User model instance
         """
-        if isinstance(obj_in, dict):
-            update_data = obj_in
-        else:
-            update_data = obj_in.dict(exclude_unset=True)
+        if obj_in.password is not None:
+            hashed_password = password_hash_ctx.hash(obj_in.password)
+            obj_in.password = hashed_password
 
-        if update_data["password"]:
-            hashed_password = password_hash_ctx.hash(update_data["password"])
-            del update_data["password"]
-            update_data["hashed_password"] = hashed_password
-
-        obj_db = await super().update(db, obj_db=obj_db, obj_in=update_data)
+        obj_db = await super().update(db, obj_db=obj_db, obj_in=obj_in)
         return obj_db
 
     async def authenticate_by_email(
@@ -125,8 +130,12 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def is_active(usr: User) -> bool:
         """
         Check if user is active.
-        :param usr: user object
-        :return: bool
+
+        Args:
+            usr: user object
+
+        Returns:
+            true if user is active, false otherwise
         """
         return usr.is_active
 
@@ -134,8 +143,12 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def is_superuser(usr: User) -> bool:
         """
         Check if user is superuser.
-        :param usr: user object
-        :return: bool
+
+        Args:
+            usr: user object
+
+        Returns:
+            true if user is superuser, false otherwise
         """
         return usr.is_superuser
 

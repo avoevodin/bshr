@@ -6,12 +6,10 @@ Attrs:
     app_dispose_db: database disposing.
 """
 from fastapi import FastAPI
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
 
 from app import crud, schemas
 from app.core.config import settings
-from app.utils.database import get_sqlalchemy_db_uri
+from app.db.session import session
 
 
 async def app_init_db(app: FastAPI) -> None:
@@ -24,18 +22,6 @@ async def app_init_db(app: FastAPI) -> None:
     Returns:
         None
     """
-    engine = create_async_engine(
-        url=get_sqlalchemy_db_uri(),
-        echo=False,
-        pool_size=50,
-        pool_pre_ping=True,
-        pool_recycle=300,
-    )
-    async_session = sessionmaker(
-        engine, expire_on_commit=False, autoflush=False, class_=AsyncSession
-    )
-
-    session = async_session(bind=engine)
     app.state.db = session
 
     if settings.FIRST_SUPERUSER_EMAIL:

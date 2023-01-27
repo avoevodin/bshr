@@ -1,5 +1,5 @@
 """
-Main start module
+Main start module.
 """
 import asyncio
 

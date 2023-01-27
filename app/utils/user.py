@@ -10,9 +10,13 @@ from typing import Optional
 
 def validate_username(username: str) -> Optional[str]:
     """
-    Check for valid username
-    :param username: username string
-    :return:
+    Check for valid username.
+
+    Args:
+        username: username string
+
+    Returns:
+        username string if it's valid, None otherwise
     """
     allowed = string.ascii_letters + string.digits + "_"
     assert all(ch in allowed for ch in username), "Invalid characters in username."

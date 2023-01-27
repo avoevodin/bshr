@@ -16,11 +16,16 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
-    def __init__(self, model: Type[ModelType]):
+    """
+    Base CRUD class.
+    """
+
+    def __init__(self, model: Type[ModelType]) -> None:
         """
         CRUD object with default methods to Create, Read, Update, Delete (CRUD).
 
-        :param model: SQLAlchemy model class
+        Args:
+            model: SQLAlchemy model class
         """
         self.model = model
 
@@ -28,9 +33,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         Get one object from db if it's been found.
 
-        :param db: SQLAlchemy session
-        :param id: object id
-        :return: SQLAlchemy model class
+        Args:
+            db: SQLAlchemy session
+            id: object id
+
+        Returns:
+            SQLAlchemy model instance
         """
         res = await db.execute(select(self.model).filter(self.model.id == id))
         found_obj = res.scalar_one_or_none()
@@ -41,10 +49,14 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     ) -> List[ModelType]:
         """
         Get multiple objects from db if they've been found.
-        :param db: SQLAlchemy session
-        :param skip: ids to skip
-        :param limit: max number of objects to return
-        :return: list of SQLAlchemy models
+
+        Args:
+            db: SQLAlchemy session
+            skip: ids to skip
+            limit: max number of objects to return
+
+        Returns:
+            list of SQLAlchemy model instances
         """
         res = await db.execute(select(self.model).offset(skip).limit(limit))
         found_objs = res.scalars().all()
@@ -52,10 +64,14 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
         """
-        Create one object
-        :param db: SQLAlchemy session
-        :param obj_in: pydantic create schema type
-        :return: SQLAlchemy model class
+        Create one object.
+
+        Args:
+            db: SQLAlchemy session
+            obj_in: pydantic create schema type
+
+        Returns:
+            SQLAlchemy model instance.
         """
         obj_in_data = jsonable_encoder(obj_in)
         obj_db = self.model(**obj_in_data)
@@ -72,11 +88,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj_in: Union[UpdateSchemaType, Dict[str, Any]]
     ) -> ModelType:
         """
-        Update an object with passed data
-        :param db: SQLAlchemy session
-        :param obj_db: SQLAlchemy model class
-        :param obj_in: pydantic create schema type
-        :return: SQLAlchemy model class
+        Update an object with passed data.
+
+        Args:
+            db: SQLAlchemy session
+            obj_db: SQLAlchemy model class
+            obj_in: pydantic create schema type
+
+        Returns:
+            SQLAlchemy model instance
         """
         obj_data = jsonable_encoder(obj_db)
         if isinstance(obj_in, dict):
@@ -95,11 +115,14 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def remove(self, db: Session, *, id: int) -> ModelType:
         """
-        Remove object by id
+        Remove object by id.
 
-        :param db: SQLAlchemy session
-        :param id: object id
-        :return: SQLAlchemy model class
+        Args:
+            db: SQLAlchemy session
+            id: object id
+
+        Returns:
+            SQLAlchemy model instance
         """
         res = await db.execute(select(self.model).filter(self.model.id == id))
         found_obj = res.scalar_one_or_none()

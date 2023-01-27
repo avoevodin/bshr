@@ -1,3 +1,6 @@
+"""
+Auth dependencies module.
+"""
 import json
 from typing import Optional
 
@@ -14,7 +17,17 @@ from app.core.config import settings
 
 async def get_current_user(
     request: Request, token: str = Depends(reusable_oauth2)
-) -> models.User:
+) -> Optional[models.User]:
+    """
+    Return current user using token.
+
+    Args:
+        request: request instance
+        token: jwt token
+
+    Returns:
+        User model instance if token is valid, None otherwise
+    """
     db = request.app.state.db
     try:
         payload = jwt.decode(
@@ -24,7 +37,7 @@ async def get_current_user(
     except (jwt.JWTError, ValidationError) as e:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not validate credentials.",
+            detail=f"Could not validate credentials:\n{e}",
         )
     token_subject = schemas.TokenSubject.parse_obj(json.loads(token_data.sub))
     user = await crud.user.get(db, id=int(token_subject.id))
@@ -35,12 +48,13 @@ async def get_current_user(
     return user
 
 
-async def get_current_active_superuser(
+async def get_current_active_user(
     request: Request,
     current_user: models.User = Depends(get_current_user),
-) -> Optional[models.User]:
+) -> models.User:
     """
-    Returns active user using passed token.
+    Return current active user using passed token.
+
     Args:
         request: request instance
         current_user: current user get by token.
@@ -50,19 +64,18 @@ async def get_current_active_superuser(
     """
     if not crud.user.is_active(current_user):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The user is inactive.",
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user."
         )
-
     return current_user
 
 
 async def get_current_active_superuser(
     request: Request,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(get_current_active_user),
 ) -> Optional[models.User]:
     """
-    Returns superuser using passed token.
+    Return superuser using passed token.
+
     Args:
         request: request instance
         current_user: current user get by token.
@@ -76,24 +89,4 @@ async def get_current_active_superuser(
             detail="The user doesn't have enough privileges.",
         )
 
-    return current_user
-
-
-async def get_current_active_user(
-    request: Request,
-    current_user: models.User = Depends(get_current_user),
-) -> models.User:
-    """
-    Returns current active user using passed token.
-    Args:
-        request: request instance
-        current_user: current user get by token.
-
-    Returns:
-        current user if it's active, otherwise None
-    """
-    if not crud.user.is_active(current_user):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user."
-        )
     return current_user

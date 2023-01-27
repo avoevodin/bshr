@@ -1,10 +1,19 @@
+"""
+Redis database initialization methods.
+
+Attrs:
+    app_init_redis: redis initialization.
+    app_dispose_redis: redis disposing.
+    get_redis_key: get redis value by key.
+    set_redis_key: set redis value.
+"""
 from typing import Optional
 
 import aioredis
 from aioredis import Redis
 from fastapi import FastAPI
 
-from utils.database import get_redis_db_uri
+from app.utils.database import get_redis_db_uri
 
 
 async def app_init_redis(app: FastAPI) -> None:

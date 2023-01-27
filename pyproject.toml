@@ -20,6 +20,10 @@ uvloop = "^0.17.0"
 asyncpg = "^0.27.0"
 python-multipart = "^0.0.5"
 aioredis = "^2.0.1"
+tenacity = "^8.1.0"
+pytest-asyncio = "^0.20.3"
+asgi-lifespan = "^2.0.0"
+aiosqlite = "^0.18.0"
 
 
 [tool.poetry.group.dev.dependencies]

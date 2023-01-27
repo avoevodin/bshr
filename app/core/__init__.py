@@ -1,0 +1,3 @@
+"""
+Main core package.
+"""

@@ -3,25 +3,7 @@ Pydantic login schemas.
 """
 from typing import Optional, List
 
-from pydantic import BaseModel, EmailStr
-
-
-class Register(BaseModel):
-    """
-    Register input scheme.
-    """
-
-    username: str
-    email: EmailStr
-    password: str
-
-
-class Auth(Register):
-    """
-    Authentication input schema.
-    """
-
-    pass
+from pydantic import BaseModel
 
 
 class Token(BaseModel):
