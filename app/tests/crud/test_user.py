@@ -9,7 +9,7 @@ from app.tests.utils.utils import random_email, random_lower_string
 @pytest.mark.asyncio
 async def test_create_user(db: AsyncSession) -> None:
     """
-    Test create user crud operation
+    Test create user crud operation.
 
     Args:
         db: SQLAlchemy session
@@ -33,7 +33,7 @@ async def test_get_user_by_email(
     db: AsyncSession, some_user_for_session: models.User
 ) -> None:
     """
-    Test get user by email crud operation
+    Test get user by email crud operation.
 
     Args:
         db: SQLAlchemy session
@@ -50,7 +50,7 @@ async def test_get_user_by_username(
     db: AsyncSession, some_user_for_session: models.User
 ) -> None:
     """
-    Test get user by username crud operation
+    Test get user by username crud operation.
 
     Args:
         db: SQLAlchemy session
@@ -96,7 +96,7 @@ async def test_update_user(
 
 def test_user_is_active_by_default(some_user_for_session: models.User) -> None:
     """
-    Test user is active by default
+    Test user is active by default.
 
     Args:
         some_user_for_session: random user created in db
@@ -109,8 +109,7 @@ def test_user_is_active_by_default(some_user_for_session: models.User) -> None:
 
 def test_user_is_not_superuser_by_default(some_user_for_session: models.User) -> None:
     """
-    Test user is not superuser by default
-
+    Test user is not superuser by default.
     Args:
         some_user_for_session: random user created in db
 
