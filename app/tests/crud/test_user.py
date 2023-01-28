@@ -118,3 +118,72 @@ def test_user_is_not_superuser_by_default(some_user_for_session: models.User) ->
         None
     """
     assert not crud.user.is_superuser(some_user_for_session)
+
+
+@pytest.mark.asyncio
+async def test_authenticate_by_email_success(db) -> None:
+    """
+    Test success authentication by email.
+
+    Args:
+        db: SQLAlchemy async session
+
+    Returns:
+        None
+    """
+    password = random_lower_string(8)
+    email = random_email()
+    user_data = schemas.UserCreate(
+        email=email, username=random_lower_string(8), password=password
+    )
+    user_db = await crud.user.create(db, obj_in=user_data)
+    user_auth = await crud.user.authenticate_by_email(
+        db, email=email, password=password
+    )
+    assert user_db == user_auth
+
+
+@pytest.mark.asyncio
+async def test_authenticate_by_email_fail_invalid_password(db) -> None:
+    """
+    Test fail authentication with invalid password.
+
+    Args:
+        db: SQLAlchemy async session
+
+    Returns:
+        None
+    """
+    password = random_lower_string(8)
+    email = random_email()
+    user_data = schemas.UserCreate(
+        email=email, username=random_lower_string(8), password=password
+    )
+    await crud.user.create(db, obj_in=user_data)
+    user_auth = await crud.user.authenticate_by_email(
+        db, email=email, password="wrong_password"
+    )
+    assert user_auth is None
+
+
+@pytest.mark.asyncio
+async def test_authenticate_by_email_fail_invalid_email(db) -> None:
+    """
+    Test fail authentication with invalid email.
+
+    Args:
+        db: SQLAlchemy async session
+
+    Returns:
+        None
+    """
+    password = random_lower_string(8)
+    email = random_email()
+    user_data = schemas.UserCreate(
+        email=email, username=random_lower_string(8), password=password
+    )
+    await crud.user.create(db, obj_in=user_data)
+    user_auth = await crud.user.authenticate_by_email(
+        db, email="wrong_email@example.com", password=password
+    )
+    assert user_auth is None
