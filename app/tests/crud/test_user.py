@@ -94,6 +94,31 @@ async def test_update_user(
     assert verify_password(password, user_db_upd.password)
 
 
+@pytest.mark.asyncio
+async def test_deactivate_user(
+    db: AsyncSession, some_user_for_function: models.User
+) -> None:
+    """
+    Test user update crud operation for user deactivation.
+
+    Args:
+        db: SQLAlchemy session
+
+    Returns:
+        None
+    """
+
+    password = random_lower_string(8)
+    user_update_data = schemas.UserUpdate(
+        is_active=False,
+    )
+    assert some_user_for_function.is_active
+    user_db_upd = await crud.user.update(
+        db, obj_db=some_user_for_function, obj_in=user_update_data
+    )
+    assert not user_db_upd.is_active
+
+
 def test_user_is_active_by_default(some_user_for_session: models.User) -> None:
     """
     Test user is active by default.
@@ -146,7 +171,7 @@ async def test_authenticate_by_email_success(db) -> None:
 @pytest.mark.asyncio
 async def test_authenticate_by_email_fail_invalid_password(db) -> None:
     """
-    Test fail authentication with invalid password.
+    Test fail email authentication with invalid password.
 
     Args:
         db: SQLAlchemy async session
@@ -169,7 +194,7 @@ async def test_authenticate_by_email_fail_invalid_password(db) -> None:
 @pytest.mark.asyncio
 async def test_authenticate_by_email_fail_invalid_email(db) -> None:
     """
-    Test fail authentication with invalid email.
+    Test fail email authentication with invalid email.
 
     Args:
         db: SQLAlchemy async session
@@ -185,5 +210,74 @@ async def test_authenticate_by_email_fail_invalid_email(db) -> None:
     await crud.user.create(db, obj_in=user_data)
     user_auth = await crud.user.authenticate_by_email(
         db, email="wrong_email@example.com", password=password
+    )
+    assert user_auth is None
+
+
+@pytest.mark.asyncio
+async def test_authenticate_by_username_success(db) -> None:
+    """
+    Test success authentication by username.
+
+    Args:
+        db: SQLAlchemy async session
+
+    Returns:
+        None
+    """
+    password = random_lower_string(8)
+    username = random_lower_string(8)
+    user_data = schemas.UserCreate(
+        email=random_email(), username=username, password=password
+    )
+    user_db = await crud.user.create(db, obj_in=user_data)
+    user_auth = await crud.user.authenticate_by_username(
+        db, username=username, password=password
+    )
+    assert user_db == user_auth
+
+
+@pytest.mark.asyncio
+async def test_authenticate_by_username_fail_invalid_password(db) -> None:
+    """
+    Test fail username authentication with invalid password.
+
+    Args:
+        db: SQLAlchemy async session
+
+    Returns:
+        None
+    """
+    password = random_lower_string(8)
+    username = random_lower_string(8)
+    user_data = schemas.UserCreate(
+        email=random_email(), username=username, password=password
+    )
+    await crud.user.create(db, obj_in=user_data)
+    user_auth = await crud.user.authenticate_by_username(
+        db, username=username, password="wrong_password"
+    )
+    assert user_auth is None
+
+
+@pytest.mark.asyncio
+async def test_authenticate_by_email_fail_invalid_username(db) -> None:
+    """
+    Test fail username authentication with invalid username.
+
+    Args:
+        db: SQLAlchemy async session
+
+    Returns:
+        None
+    """
+    password = random_lower_string(8)
+    username = random_lower_string(8)
+    user_data = schemas.UserCreate(
+        email=random_email(), username=username, password=password
+    )
+    await crud.user.create(db, obj_in=user_data)
+    user_auth = await crud.user.authenticate_by_username(
+        db, username="wrong_username", password=password
     )
     assert user_auth is None
