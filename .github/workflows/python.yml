@@ -31,9 +31,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
         poetry install --dry-run
-        poetry export --without-hashes -o requirements.txt
-        poetry export --with dev --without-hashes -o requirements-dev.txt
-        pip install -r requirements-dev.txt
+        poetry export --without-hashes -o requirements/prod.txt
+        poetry export --with dev --without-hashes -o requirements/dev.txt
+        pip install -r requirements/dev.txt
     - name: Lint with flake8
       run: |
         python -m flake8 --config setup.cfg --count --show-source --statistics

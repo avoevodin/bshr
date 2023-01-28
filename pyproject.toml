@@ -9,7 +9,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4.0"
 fastapi = "^0.88.0"
-sqlalchemy = {extras = ["asyncio"], version = "^1.4.45"}
+sqlalchemy = "2.0"
 greenlet = "^2.0.1"
 hypercorn = {extras = ["uvloop"], version = "^0.14.3"}
 alembic = "^1.8.1"
