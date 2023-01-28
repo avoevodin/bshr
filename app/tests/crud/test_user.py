@@ -110,6 +110,7 @@ def test_user_is_active_by_default(some_user_for_session: models.User) -> None:
 def test_user_is_not_superuser_by_default(some_user_for_session: models.User) -> None:
     """
     Test user is not superuser by default.
+
     Args:
         some_user_for_session: random user created in db
 
