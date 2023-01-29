@@ -23,7 +23,9 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engin
 from sqlalchemy.future import Connection
 from sqlalchemy.orm import sessionmaker
 
+from app import crud, models, schemas
 from app.db import Base
+from app.tests.utils.utils import random_email, random_lower_string
 
 BASE_PATH = pathlib.Path(__file__).parent.parent
 sys.path.append(str(BASE_PATH))
@@ -127,8 +129,8 @@ async def db(engine: AsyncEngine) -> AsyncSession:
     async_session = sessionmaker(
         engine, expire_on_commit=False, autoflush=False, class_=AsyncSession
     )
-    session = async_session(bind=engine)
-    yield session
+    async with async_session(bind=engine) as session:
+        yield session
 
 
 @pytest.fixture(scope="session")
@@ -199,3 +201,25 @@ async def engine(db_test_url: str) -> AsyncEngine:
     await migrate(engine, url)
     yield engine
     await engine.dispose()
+
+
+@pytest_asyncio.fixture(scope="session")
+async def some_user_for_session(db: AsyncSession) -> models.User:
+    user_data = schemas.UserCreate(
+        username=random_lower_string(8),
+        email=random_email(),
+        password=random_lower_string(8),
+    )
+    user_db = await crud.user.create(db, obj_in=user_data)
+    return user_db
+
+
+@pytest_asyncio.fixture(scope="function")
+async def some_user_for_function(db: AsyncSession) -> models.User:
+    user_data = schemas.UserCreate(
+        username=random_lower_string(8),
+        email=random_email(),
+        password=random_lower_string(8),
+    )
+    user_db = await crud.user.create(db, obj_in=user_data)
+    return user_db
