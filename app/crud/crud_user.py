@@ -6,7 +6,7 @@ from typing import Optional
 from sqlalchemy.future import select
 from sqlalchemy.orm import Session
 
-from app.core.security import password_hash_ctx, verify_password
+from app.core.security import verify_password, get_password_hash
 from app.crud.base import CRUDBase
 from app.models import User
 from app.schemas import UserCreate, UserUpdate
@@ -60,8 +60,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         Returns:
             User model instance
         """
-        hashed_password = password_hash_ctx.hash(obj_in.password)
-        obj_in.password = hashed_password
+        obj_in.password = get_password_hash(obj_in.password)
         user_db = await super().create(db, obj_in=obj_in)
         return user_db
 
@@ -78,8 +77,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             User model instance
         """
         if obj_in.password is not None:
-            hashed_password = password_hash_ctx.hash(obj_in.password)
-            obj_in.password = hashed_password
+            obj_in.password = get_password_hash(obj_in.password)
 
         obj_db = await super().update(db, obj_db=obj_db, obj_in=obj_in)
         return obj_db
