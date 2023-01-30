@@ -5,9 +5,9 @@ Attrs:
     settings: instance of main Settings class.
 """
 import secrets
-from typing import List, Union
+from typing import List, Union, Optional, Dict, Any
 
-from pydantic import BaseSettings, AnyHttpUrl, validator
+from pydantic import BaseSettings, AnyHttpUrl, validator, PostgresDsn, RedisDsn
 
 
 class Settings(BaseSettings):
@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     SERVER_NAME: str = "bshr"
     SERVER_HOST: str = "0.0.0.0"
     SERVER_PORT: int = 8000
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+    BACKEND_CORS_ORIGINS: Union[str, List[AnyHttpUrl]] = []
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[str, List[str]]:
@@ -34,9 +34,8 @@ class Settings(BaseSettings):
         """
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
-        elif isinstance(v, (list, str)):
+        else:
             return v
-        raise ValueError(v)
 
     class Config:
         """
@@ -54,8 +53,59 @@ class Settings(BaseSettings):
     SQLALCHEMY_DATABASE_HOST: str
     SQLALCHEMY_DATABASE_PORT: str
 
+    SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
+
+    @validator("SQLALCHEMY_DATABASE_URI", pre=True)
+    def assemble_db_connection(
+        cls, v: Optional[str], values: Dict[str, Any]
+    ) -> Optional[str]:
+        """
+        Validate and assemble SQLAlchemy db uri with passed settings.
+
+        Args:
+            v: current value of db uri
+            values: filled settings values
+
+        Returns:
+            Database connection uri if all parameters are valid, otherwise None.
+        """
+        if isinstance(v, str):
+            return v
+        return PostgresDsn.build(
+            scheme=values.get("SQLALCHEMY_DATABASE_DRIVER"),
+            user=values.get("SQLALCHEMY_DATABASE_USER"),
+            password=values.get("SQLALCHEMY_DATABASE_PASSWORD"),
+            host=values.get("SQLALCHEMY_DATABASE_HOST"),
+            port=values.get("SQLALCHEMY_DATABASE_PORT"),
+            path=f"/{values.get('SQLALCHEMY_DATABASE_NAME') or ''}",
+        )
+
     REDIS_HOST: str
     REDIS_PORT: str
+
+    REDIS_DATABASE_URI: Optional[RedisDsn] = None
+
+    @validator("REDIS_DATABASE_URI", pre=True)
+    def assemble_redis_connection(
+        cls, v: Optional[str], values: Dict[str, Any]
+    ) -> Optional[str]:
+        """
+        Validate and assemble Rsedis db uri with passed settings.
+
+        Args:
+            v: current value of db uri
+            values: filled settings values
+
+        Returns:
+            Database connection uri if all parameters are valid, otherwise None.
+        """
+        if isinstance(v, str):
+            return v
+        return RedisDsn.build(
+            scheme="redis",
+            host=values.get("REDIS_HOST"),
+            port=values.get("REDIS_PORT"),
+        )
 
     FIRST_SUPERUSER: str
     FIRST_SUPERUSER_EMAIL: str

@@ -7,8 +7,8 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from app.core.config import settings
 from app.models import Base
-from app.utils.database import get_sqlalchemy_db_uri
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -20,7 +20,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # set config from config.db module
-config.set_main_option("sqlalchemy.url", get_sqlalchemy_db_uri())
+config.set_main_option("sqlalchemy.url", settings.SQLALCHEMY_DATABASE_URI)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
