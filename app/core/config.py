@@ -34,9 +34,8 @@ class Settings(BaseSettings):
         """
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
-        elif isinstance(v, (list, str)):
+        else:
             return v
-        raise ValueError(v)
 
     class Config:
         """
@@ -91,7 +90,7 @@ class Settings(BaseSettings):
         cls, v: Optional[str], values: Dict[str, Any]
     ) -> Optional[str]:
         """
-        Validate and assemble Redis db uri with passed settings.
+        Validate and assemble Rsedis db uri with passed settings.
 
         Args:
             v: current value of db uri

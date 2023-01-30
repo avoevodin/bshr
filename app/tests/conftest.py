@@ -8,7 +8,7 @@ import asyncio
 import pathlib
 import sys
 from asyncio import AbstractEventLoop
-from typing import List
+from typing import List, Dict
 
 import pytest
 import pytest_asyncio
@@ -183,6 +183,26 @@ def redis_test_url() -> str:
         url string for redis test database connection
     """
     return "redis://127.0.0.1:6379/0"  # noqa
+
+
+@pytest.fixture(scope="function")
+def test_settings_env_dict() -> Dict:
+    return {
+        "BACKEND_CORS_ORIGINS": (
+            "http://localhost,http://localhost:4200,http://localhost:3000"
+        ),
+        "FIRST_SUPERUSER": "admin",
+        "FIRST_SUPERUSER_EMAIL": "admin@example.com",
+        "FIRST_SUPERUSER_PASSWORD": "secret",
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": "6379",
+        "SQLALCHEMY_DATABASE_DRIVER": "postgresql+asyncpg",
+        "SQLALCHEMY_DATABASE_NAME": "test_db",
+        "SQLALCHEMY_DATABASE_USER": "user",
+        "SQLALCHEMY_DATABASE_PASSWORD": "secret",
+        "SQLALCHEMY_DATABASE_HOST": "host",
+        "SQLALCHEMY_DATABASE_PORT": "5432",
+    }
 
 
 @pytest_asyncio.fixture(scope="session")
