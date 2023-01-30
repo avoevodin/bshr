@@ -13,7 +13,7 @@ import aioredis
 from aioredis import Redis
 from fastapi import FastAPI
 
-from app.utils.database import get_redis_db_uri
+from app.core.config import settings
 
 
 async def app_init_redis(app: FastAPI) -> None:
@@ -26,7 +26,7 @@ async def app_init_redis(app: FastAPI) -> None:
     Returns:
         None
     """
-    app.state.redis = aioredis.from_url(get_redis_db_uri())
+    app.state.redis = aioredis.from_url(settings.REDIS_DATABASE_URI)
 
 
 async def app_dispose_redis(app: FastAPI) -> None:
