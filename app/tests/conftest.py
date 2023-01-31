@@ -5,13 +5,17 @@ Args:
     - engine (database engine instance with applied migrations)
 """
 import asyncio
+import os
 import pathlib
 import sys
 from asyncio import AbstractEventLoop
 from typing import List, Dict
+from unittest import mock
 
+import aioredis
 import pytest
 import pytest_asyncio
+from aioredis import Redis
 from alembic.config import Config
 from alembic.operations import Operations
 from alembic.runtime.environment import EnvironmentContext
@@ -19,6 +23,7 @@ from alembic.runtime.migration import MigrationContext, RevisionStep
 from alembic.script import ScriptDirectory
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
+from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.future import Connection
 from sqlalchemy.orm import sessionmaker
@@ -150,17 +155,62 @@ def event_loop() -> AbstractEventLoop:
 
 
 @pytest_asyncio.fixture(scope="session")
-async def get_app() -> FastAPI:
+async def get_redis(redis_test_url: str) -> Redis:
+    """
+    Creates redis test connection pool with url connection string provided.
+
+    Args:
+        redis_test_url: url string
+
+    Returns:
+        Redis instance
+    """
+    return aioredis.from_url(redis_test_url)
+
+
+@pytest_asyncio.fixture(scope="session")
+async def get_app(
+    engine: AsyncEngine,
+    db_test_url: str,
+    get_redis: Redis,
+    redis_test_url: str,
+    test_settings_env_dict: dict,
+) -> FastAPI:
     """
     Creates FastAPI test application with initialized databases.
+
+    Args:
+        engine: async database engine instance
+        database_test_url: db connection url
+        get_redis: redis instance
+        redis_test_url: redis connection instance
+        test_settings_env_dict: test env vars for settings
 
     Returns:
         FastAPI wsgi application instance
     """
-    from app.main import app
+    test_settings_env_dict["REDIS_DATABASE_URI"] = redis_test_url
+    test_settings_env_dict["SQLALCHEMY_DATABASE_URI"] = db_test_url
+    with mock.patch.dict(os.environ, test_settings_env_dict):
+        from app.main import app
 
-    async with LifespanManager(app):
-        yield app
+        async with LifespanManager(app):
+            yield app
+
+
+@pytest_asyncio.fixture(scope="session")
+async def get_client(get_app: FastAPI) -> AsyncClient:
+    """
+    Create a custom async http client based on httpx AsyncClient.
+
+    Args:
+        get_app: FastAPI wsgi application instance
+
+    Returns:
+        httpx async client instance
+    """
+    async with AsyncClient(app=get_app, base_url="http://testserver") as client:
+        yield client
 
 
 @pytest.fixture(scope="session")
