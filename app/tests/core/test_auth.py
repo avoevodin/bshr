@@ -10,9 +10,9 @@ from app.schemas import TokenSubject
 from app.tests.utils.utils import random_lower_string, random_email
 
 
-def test_create_access_token(test_settings_env_dict: dict) -> None:
-    test_settings_env_dict["ACCESS_TOKEN_EXPIRE_MINUTES"] = "5"
-    with mock.patch.dict(os.environ, test_settings_env_dict):
+def test_create_access_token(test_settings_env_dict_function_scope: dict) -> None:
+    test_settings_env_dict_function_scope["ACCESS_TOKEN_EXPIRE_MINUTES"] = "5"
+    with mock.patch.dict(os.environ, test_settings_env_dict_function_scope):
         from app.core.config import settings
         from app.core.auth import create_access_token, decode_token
 
@@ -37,9 +37,11 @@ def test_create_access_token(test_settings_env_dict: dict) -> None:
         )
 
 
-def test_create_access_token_with_expires_data(test_settings_env_dict: dict) -> None:
-    test_settings_env_dict["ACCESS_TOKEN_EXPIRE_MINUTES"] = "5"
-    with mock.patch.dict(os.environ, test_settings_env_dict):
+def test_create_access_token_with_expires_data(
+    test_settings_env_dict_function_scope: dict,
+) -> None:
+    test_settings_env_dict_function_scope["ACCESS_TOKEN_EXPIRE_MINUTES"] = "5"
+    with mock.patch.dict(os.environ, test_settings_env_dict_function_scope):
         from app.core.config import settings
         from app.core.auth import create_access_token, decode_token
 
@@ -69,8 +71,8 @@ def test_create_access_token_with_expires_data(test_settings_env_dict: dict) -> 
         )
 
 
-def test_create_tokens(test_settings_env_dict: dict) -> None:
-    with mock.patch.dict(os.environ, test_settings_env_dict):
+def test_create_tokens(test_settings_env_dict_function_scope: dict) -> None:
+    with mock.patch.dict(os.environ, test_settings_env_dict_function_scope):
         from app.core.config import settings
         from app.core.auth import create_tokens
 

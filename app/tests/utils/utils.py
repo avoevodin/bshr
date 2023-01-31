@@ -23,3 +23,28 @@ def random_email() -> str:
         random email string
     """
     return f"{random_lower_string(8)}@{random_lower_string(5)}.com"
+
+
+def get_settings_env_dict() -> dict:
+    """
+    Return test settings env dict.
+
+    Returns:
+        settings dict
+    """
+    return {
+        "BACKEND_CORS_ORIGINS": (
+            "http://localhost,http://localhost:4200,http://localhost:3000"
+        ),
+        "FIRST_SUPERUSER": "admin",
+        "FIRST_SUPERUSER_EMAIL": "admin@example.com",
+        "FIRST_SUPERUSER_PASSWORD": "secret",
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": "6379",
+        "SQLALCHEMY_DATABASE_DRIVER": "postgresql+asyncpg",
+        "SQLALCHEMY_DATABASE_NAME": "test_db",
+        "SQLALCHEMY_DATABASE_USER": "user",
+        "SQLALCHEMY_DATABASE_PASSWORD": "secret",
+        "SQLALCHEMY_DATABASE_HOST": "host",
+        "SQLALCHEMY_DATABASE_PORT": "5432",
+    }

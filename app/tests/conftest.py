@@ -9,7 +9,7 @@ import os
 import pathlib
 import sys
 from asyncio import AbstractEventLoop
-from typing import List, Dict
+from typing import List
 from unittest import mock
 
 import aioredis
@@ -30,7 +30,11 @@ from sqlalchemy.orm import sessionmaker
 
 from app import crud, models, schemas
 from app.db import Base
-from app.tests.utils.utils import random_email, random_lower_string
+from app.tests.utils.utils import (
+    random_email,
+    random_lower_string,
+    get_settings_env_dict,
+)
 
 BASE_PATH = pathlib.Path(__file__).parent.parent
 sys.path.append(str(BASE_PATH))
@@ -174,7 +178,7 @@ async def get_app(
     db_test_url: str,
     get_redis: Redis,
     redis_test_url: str,
-    test_settings_env_dict: dict,
+    test_settings_env_dict_session_scope: dict,
 ) -> FastAPI:
     """
     Creates FastAPI test application with initialized databases.
@@ -236,23 +240,25 @@ def redis_test_url() -> str:
 
 
 @pytest.fixture(scope="function")
-def test_settings_env_dict() -> Dict:
-    return {
-        "BACKEND_CORS_ORIGINS": (
-            "http://localhost,http://localhost:4200,http://localhost:3000"
-        ),
-        "FIRST_SUPERUSER": "admin",
-        "FIRST_SUPERUSER_EMAIL": "admin@example.com",
-        "FIRST_SUPERUSER_PASSWORD": "secret",
-        "REDIS_HOST": "localhost",
-        "REDIS_PORT": "6379",
-        "SQLALCHEMY_DATABASE_DRIVER": "postgresql+asyncpg",
-        "SQLALCHEMY_DATABASE_NAME": "test_db",
-        "SQLALCHEMY_DATABASE_USER": "user",
-        "SQLALCHEMY_DATABASE_PASSWORD": "secret",
-        "SQLALCHEMY_DATABASE_HOST": "host",
-        "SQLALCHEMY_DATABASE_PORT": "5432",
-    }
+def test_settings_env_dict_function_scope() -> dict:
+    """
+    Return test settings env dict for function scope.
+
+    Returns:
+        dict of envs
+    """
+    return get_settings_env_dict()
+
+
+@pytest.fixture(scope="session")
+def test_settings_env_dict_session_scope() -> dict:
+    """
+    Return test settings env dict for function scope.
+
+    Returns:
+        dict of envs
+    """
+    return get_settings_env_dict()
 
 
 @pytest_asyncio.fixture(scope="session")
