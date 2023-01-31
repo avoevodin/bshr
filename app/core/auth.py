@@ -43,10 +43,11 @@ def create_tokens(token_subject: dict) -> schemas.Token:
     )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
+
     token = schemas.Token(
         access_token=auth.create_access_token(access_token, access_token_expires),
         refresh_token=auth.create_access_token(refresh_token, refresh_token_expires),
-        token_type="bearer",
+        token_type=token_subject.get("token_type"),
     )
     return token
 

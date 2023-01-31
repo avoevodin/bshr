@@ -69,6 +69,7 @@ async def login_access_token(
         "username": user.username,
         "email": user.email,
         "jti": uuid.uuid4().hex,
+        "token_type": "bearer",
     }
     if crud.user.is_superuser(user):
         token_subject.update({"scope": ["admin"]})
