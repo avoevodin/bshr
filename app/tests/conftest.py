@@ -193,9 +193,9 @@ async def get_app(
     Returns:
         FastAPI wsgi application instance
     """
-    test_settings_env_dict["REDIS_DATABASE_URI"] = redis_test_url
-    test_settings_env_dict["SQLALCHEMY_DATABASE_URI"] = db_test_url
-    with mock.patch.dict(os.environ, test_settings_env_dict):
+    test_settings_env_dict_session_scope["REDIS_DATABASE_URI"] = redis_test_url
+    test_settings_env_dict_session_scope["SQLALCHEMY_DATABASE_URI"] = db_test_url
+    with mock.patch.dict(os.environ, test_settings_env_dict_session_scope):
         from app.main import app
 
         async with LifespanManager(app):
