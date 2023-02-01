@@ -179,7 +179,7 @@ async def get_app(
     db_test_url: str,
     get_redis: Redis,
     redis_test_url: str,
-    test_settings_env_dict_session_scope: dict,
+    settings_env_dict_session_scope: dict,
 ) -> FastAPI:
     """
     Creates FastAPI test application with initialized databases.
@@ -194,19 +194,20 @@ async def get_app(
     Returns:
         FastAPI wsgi application instance
     """
-    # test_settings_env_dict_session_scope["REDIS_DATABASE_URI"] = redis_test_url
-    # test_settings_env_dict_session_scope["SQLALCHEMY_DATABASE_URI"] = db_test_url
-    # from app.core.config import settings
+    with mock.patch.dict(os.environ, settings_env_dict_session_scope):
+        with mock.patch(
+            "sqlalchemy.ext.asyncio.create_async_engine", return_value=engine
+        ) as create_eng:
+            with mock.patch(
+                "aioredis.from_url", return_value=get_redis
+            ) as create_redis:
+                with mock.patch("app.db.redis.get_redis_key", return_value=0):
+                    create_eng.return_value = engine
+                    create_redis.return_value = get_redis
+                    from app.main import app
 
-    with mock.patch.dict(os.environ, test_settings_env_dict_session_scope):
-        with mock.patch("sqlalchemy.ext.asyncio.create_async_engine") as create_eng:
-            with mock.patch("aioredis.from_url") as create_redis:
-                create_eng.return_value = engine
-                create_redis.return_value = get_redis
-                from app.main import app
-
-                async with LifespanManager(app):
-                    yield app
+                    async with LifespanManager(app):
+                        yield app
 
 
 @pytest_asyncio.fixture(scope="session")

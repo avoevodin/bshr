@@ -6,7 +6,7 @@ from pydantic import ValidationError, BaseSettings
 
 
 def test_import_config(
-    settings_env_dict_function_scope: dict, settings_with_test_env
+    settings_with_test_env: BaseSettings, settings_env_dict_function_scope: dict
 ) -> None:
     settings = settings_with_test_env
     assert (
@@ -52,25 +52,25 @@ def test_import_config(
     )
 
 
-def test_db_url(settings_env_dict_function_scope) -> None:
-    with mock.patch.dict(os.environ, settings_env_dict_function_scope):
-        from app.core.config import settings
+def test_db_url(
+    settings_with_test_env: BaseSettings, settings_env_dict_function_scope: dict
+) -> None:
+    settings = settings_with_test_env
+    assert (
+        settings.SQLALCHEMY_DATABASE_URI
+        == "postgresql+asyncpg://user:secret@host:5432/test_db"
+    )
 
-        assert (
-            settings.SQLALCHEMY_DATABASE_URI
-            == "postgresql+asyncpg://user:secret@host:5432/test_db"
-        )
 
-
-def test_redis_url(settings_env_dict_function_scope) -> None:
-    with mock.patch.dict(os.environ, settings_env_dict_function_scope):
-        from app.core.config import settings
-
-        assert settings.REDIS_DATABASE_URI == "redis://localhost:6379/0"
+def test_redis_url(
+    settings_with_test_env: BaseSettings, settings_env_dict_function_scope: dict
+) -> None:
+    settings = settings_with_test_env
+    assert settings.REDIS_DATABASE_URI == "redis://localhost:6379/0"
 
 
 def test_import_config_with_cors_backend_list(
-    settings_env_dict_function_scope,
+    settings_env_dict_function_scope: dict,
 ) -> None:
     BACKEND_CORS_ORIGINS_LIST = (
         "['http://localhost','http://localhost:4200','http://localhost:3000']"
