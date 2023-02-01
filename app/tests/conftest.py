@@ -5,13 +5,17 @@ Args:
     - engine (database engine instance with applied migrations)
 """
 import asyncio
+import os
 import pathlib
 import sys
 from asyncio import AbstractEventLoop
-from typing import List, Dict
+from typing import List
+from unittest import mock
 
+import aioredis
 import pytest
 import pytest_asyncio
+from aioredis import Redis
 from alembic.config import Config
 from alembic.operations import Operations
 from alembic.runtime.environment import EnvironmentContext
@@ -19,13 +23,19 @@ from alembic.runtime.migration import MigrationContext, RevisionStep
 from alembic.script import ScriptDirectory
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
+from httpx import AsyncClient
+from pydantic import BaseSettings
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.future import Connection
 from sqlalchemy.orm import sessionmaker
 
 from app import crud, models, schemas
 from app.db import Base
-from app.tests.utils.utils import random_email, random_lower_string
+from app.tests.utils.utils import (
+    random_email,
+    random_lower_string,
+    get_settings_env_dict,
+)
 
 BASE_PATH = pathlib.Path(__file__).parent.parent
 sys.path.append(str(BASE_PATH))
@@ -150,17 +160,69 @@ def event_loop() -> AbstractEventLoop:
 
 
 @pytest_asyncio.fixture(scope="session")
-async def get_app() -> FastAPI:
+async def get_redis(redis_test_url: str) -> Redis:
+    """
+    Creates redis test connection pool with url connection string provided.
+
+    Args:
+        redis_test_url: url string
+
+    Returns:
+        Redis instance
+    """
+    return aioredis.from_url(redis_test_url)
+
+
+@pytest_asyncio.fixture(scope="session")
+async def get_app(
+    engine: AsyncEngine,
+    db_test_url: str,
+    get_redis: Redis,
+    redis_test_url: str,
+    settings_env_dict_session_scope: dict,
+) -> FastAPI:
     """
     Creates FastAPI test application with initialized databases.
+
+    Args:
+        engine: async database engine instance
+        database_test_url: db connection url
+        get_redis: redis instance
+        redis_test_url: redis connection instance
+        test_settings_env_dict: test env vars for settings
 
     Returns:
         FastAPI wsgi application instance
     """
-    from app.main import app
+    with mock.patch.dict(os.environ, settings_env_dict_session_scope):
+        with mock.patch(
+            "sqlalchemy.ext.asyncio.create_async_engine", return_value=engine
+        ) as create_eng:
+            with mock.patch(
+                "aioredis.from_url", return_value=get_redis
+            ) as create_redis:
+                with mock.patch("app.db.redis.get_redis_key", return_value=0):
+                    create_eng.return_value = engine
+                    create_redis.return_value = get_redis
+                    from app.main import app
 
-    async with LifespanManager(app):
-        yield app
+                    async with LifespanManager(app):
+                        yield app
+
+
+@pytest_asyncio.fixture(scope="session")
+async def get_client(get_app: FastAPI) -> AsyncClient:
+    """
+    Create a custom async http client based on httpx AsyncClient.
+
+    Args:
+        get_app: FastAPI wsgi application instance
+
+    Returns:
+        httpx async client instance
+    """
+    async with AsyncClient(app=get_app, base_url="http://testserver") as client:
+        yield client
 
 
 @pytest.fixture(scope="session")
@@ -186,23 +248,42 @@ def redis_test_url() -> str:
 
 
 @pytest.fixture(scope="function")
-def test_settings_env_dict() -> Dict:
-    return {
-        "BACKEND_CORS_ORIGINS": (
-            "http://localhost,http://localhost:4200,http://localhost:3000"
-        ),
-        "FIRST_SUPERUSER": "admin",
-        "FIRST_SUPERUSER_EMAIL": "admin@example.com",
-        "FIRST_SUPERUSER_PASSWORD": "secret",
-        "REDIS_HOST": "localhost",
-        "REDIS_PORT": "6379",
-        "SQLALCHEMY_DATABASE_DRIVER": "postgresql+asyncpg",
-        "SQLALCHEMY_DATABASE_NAME": "test_db",
-        "SQLALCHEMY_DATABASE_USER": "user",
-        "SQLALCHEMY_DATABASE_PASSWORD": "secret",
-        "SQLALCHEMY_DATABASE_HOST": "host",
-        "SQLALCHEMY_DATABASE_PORT": "5432",
-    }
+def settings_env_dict_function_scope() -> dict:
+    """
+    Return test settings env dict for function scope.
+
+    Returns:
+        dict of envs
+    """
+    return get_settings_env_dict()
+
+
+@pytest.fixture(scope="session")
+def settings_env_dict_session_scope() -> dict:
+    """
+    Return test settings env dict for function scope.
+
+    Returns:
+        dict of envs
+    """
+    return get_settings_env_dict()
+
+
+@pytest.fixture(scope="function")
+def settings_with_test_env(settings_env_dict_function_scope: dict) -> BaseSettings:
+    """
+    Return test settings instance.
+
+    Args:
+        test_settings_env_dict_session_scope:
+
+    Returns:
+        test Settings instance
+    """
+    with mock.patch.dict(os.environ, settings_env_dict_function_scope):
+        from app.core.config import settings
+
+        return settings
 
 
 @pytest_asyncio.fixture(scope="session")

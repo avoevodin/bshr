@@ -16,11 +16,11 @@ from app.core import auth
 from app.core.config import settings
 
 reusable_oauth2 = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}{settings.LOGIN_ACCESS_TOKEN_PATH}",
+    tokenUrl=f"{settings.API_PREFIX}{settings.LOGIN_ACCESS_TOKEN_PATH}",
 )
 
 reusable_oauth2_refresh = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}{settings.LOGIN_REFRESH_TOKEN_PATH}",
+    tokenUrl=f"{settings.API_PREFIX}{settings.LOGIN_REFRESH_TOKEN_PATH}",
 )
 
 
