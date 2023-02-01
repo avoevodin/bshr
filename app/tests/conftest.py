@@ -24,6 +24,7 @@ from alembic.script import ScriptDirectory
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 from httpx import AsyncClient
+from pydantic import BaseSettings
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.future import Connection
 from sqlalchemy.orm import sessionmaker
@@ -193,13 +194,19 @@ async def get_app(
     Returns:
         FastAPI wsgi application instance
     """
-    test_settings_env_dict_session_scope["REDIS_DATABASE_URI"] = redis_test_url
-    test_settings_env_dict_session_scope["SQLALCHEMY_DATABASE_URI"] = db_test_url
-    with mock.patch.dict(os.environ, test_settings_env_dict_session_scope):
-        from app.main import app
+    # test_settings_env_dict_session_scope["REDIS_DATABASE_URI"] = redis_test_url
+    # test_settings_env_dict_session_scope["SQLALCHEMY_DATABASE_URI"] = db_test_url
+    # from app.core.config import settings
 
-        async with LifespanManager(app):
-            yield app
+    with mock.patch.dict(os.environ, test_settings_env_dict_session_scope):
+        with mock.patch("sqlalchemy.ext.asyncio.create_async_engine") as create_eng:
+            with mock.patch("aioredis.from_url") as create_redis:
+                create_eng.return_value = engine
+                create_redis.return_value = get_redis
+                from app.main import app
+
+                async with LifespanManager(app):
+                    yield app
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -240,7 +247,7 @@ def redis_test_url() -> str:
 
 
 @pytest.fixture(scope="function")
-def test_settings_env_dict_function_scope() -> dict:
+def settings_env_dict_function_scope() -> dict:
     """
     Return test settings env dict for function scope.
 
@@ -251,7 +258,7 @@ def test_settings_env_dict_function_scope() -> dict:
 
 
 @pytest.fixture(scope="session")
-def test_settings_env_dict_session_scope() -> dict:
+def settings_env_dict_session_scope() -> dict:
     """
     Return test settings env dict for function scope.
 
@@ -259,6 +266,23 @@ def test_settings_env_dict_session_scope() -> dict:
         dict of envs
     """
     return get_settings_env_dict()
+
+
+@pytest.fixture(scope="function")
+def settings_with_test_env(settings_env_dict_function_scope: dict) -> BaseSettings:
+    """
+    Return test settings instance.
+
+    Args:
+        test_settings_env_dict_session_scope:
+
+    Returns:
+        test Settings instance
+    """
+    with mock.patch.dict(os.environ, settings_env_dict_function_scope):
+        from app.core.config import settings
+
+        return settings
 
 
 @pytest_asyncio.fixture(scope="session")

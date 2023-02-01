@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     Main class for all settings.
     """
 
-    API_V1_STR: str = "/api/v1"
+    API_PREFIX: str = "/api/v1"
     SERVER_NAME: str = "bshr"
     SERVER_HOST: str = "0.0.0.0"
     SERVER_PORT: int = 8000

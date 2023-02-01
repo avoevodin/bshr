@@ -39,7 +39,7 @@ async def test_get_multi(db: AsyncSession) -> None:
     check_list = []
     for i in range(3):
         check_list.append(await create_random_user(db))
-    check_list.append(*init_users_list)
+    check_list.extend(init_users_list)
 
     new_users_list = await CRUDBase(models.User).get_multi(db)
     assert len(check_list) == len(new_users_list)

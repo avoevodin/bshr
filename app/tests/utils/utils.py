@@ -38,7 +38,7 @@ def get_settings_env_dict() -> dict:
         ),
         "FIRST_SUPERUSER": "admin",
         "FIRST_SUPERUSER_EMAIL": "admin@example.com",
-        "FIRST_SUPERUSER_PASSWORD": "secret",
+        "FIRST_SUPERUSER_PASSWORD": "secretpwd",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": "6379",
         "SQLALCHEMY_DATABASE_DRIVER": "postgresql+asyncpg",
