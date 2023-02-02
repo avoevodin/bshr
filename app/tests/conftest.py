@@ -12,10 +12,10 @@ from asyncio import AbstractEventLoop
 from typing import List
 from unittest import mock
 
-import aioredis
+import redis.asyncio as async_redis
 import pytest
 import pytest_asyncio
-from aioredis import Redis
+from redis.asyncio import Redis
 from alembic.config import Config
 from alembic.operations import Operations
 from alembic.runtime.environment import EnvironmentContext
@@ -170,7 +170,7 @@ async def get_redis(redis_test_url: str) -> Redis:
     Returns:
         Redis instance
     """
-    return aioredis.from_url(redis_test_url)
+    return async_redis.from_url(redis_test_url)
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -199,7 +199,7 @@ async def get_app(
             "sqlalchemy.ext.asyncio.create_async_engine", return_value=engine
         ) as create_eng:
             with mock.patch(
-                "aioredis.from_url", return_value=get_redis
+                "redis.asyncio.from_url", return_value=get_redis
             ) as create_redis:
                 with mock.patch("app.db.redis.get_redis_key", return_value=0):
                     create_eng.return_value = engine
