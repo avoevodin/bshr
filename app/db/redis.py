@@ -9,9 +9,9 @@ Attrs:
 """
 from typing import Optional
 
-import aioredis
-from aioredis import Redis
+import redis.asyncio as async_redis
 from fastapi import FastAPI
+from redis.asyncio import Redis
 
 from app.core.config import settings
 
@@ -26,7 +26,7 @@ async def app_init_redis(app: FastAPI) -> None:
     Returns:
         None
     """
-    app.state.redis = aioredis.from_url(settings.REDIS_DATABASE_URI)
+    app.state.redis = async_redis.from_url(settings.REDIS_DATABASE_URI)
 
 
 async def app_dispose_redis(app: FastAPI) -> None:
