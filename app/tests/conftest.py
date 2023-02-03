@@ -12,10 +12,9 @@ from asyncio import AbstractEventLoop
 from typing import List
 from unittest import mock
 
-import redis.asyncio as async_redis
 import pytest
 import pytest_asyncio
-from redis.asyncio import Redis
+import redis.asyncio as async_redis
 from alembic.config import Config
 from alembic.operations import Operations
 from alembic.runtime.environment import EnvironmentContext
@@ -25,6 +24,7 @@ from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 from httpx import AsyncClient
 from pydantic import BaseSettings
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.future import Connection
 from sqlalchemy.orm import sessionmaker
