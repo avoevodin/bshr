@@ -29,7 +29,9 @@ async def app_init_db(app: FastAPI) -> None:
             session, email=settings.FIRST_SUPERUSER_EMAIL
         )
     else:
-        user = await crud.user.get_by_username(session, settings.FIRST_SUPERUSER)
+        user = await crud.user.get_by_username(
+            session, username=settings.FIRST_SUPERUSER
+        )
 
     if not user:
         user_in = schemas.UserCreate(
