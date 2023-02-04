@@ -115,19 +115,6 @@ async def migrate(engine: AsyncEngine, url: str) -> None:
     await async_migrate(engine, alembic_env)
 
 
-async def disconnect(engine: AsyncEngine) -> None:
-    """
-    Dispose a database engine and destroy all of its connections.
-
-    Args:
-
-    Returns:
-        None
-    """
-
-    await engine.dispose()
-
-
 @pytest_asyncio.fixture(scope="session")
 async def db(engine: AsyncEngine) -> AsyncSession:
     """
