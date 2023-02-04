@@ -33,13 +33,13 @@ app = FastAPI(
     description=OPENAPI_DESCRIPTION,
     openapi_tags=OPENAPI_TAGS,
     contact={
-        "name": "Andrey Voevodin",
-        "url": "https://github.com/avoevodin",
-        "email": "avoevodin8888@gmail.com",
+        "name": settings.API_CONTACT_NAME,
+        "url": settings.API_CONTACT_URL,
+        "email": settings.API_CONTACT_EMAIL,
     },
     license_info={
-        "name": "MIT License",
-        "url": "https://github.com/avoevodin/bshr/blob/master/LICENSE",
+        "name": settings.LICENSE_NAME,
+        "url": settings.LICENSE_URL,
     },
 )
 
