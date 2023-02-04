@@ -15,6 +15,13 @@ class Settings(BaseSettings):
     Main class for all settings.
     """
 
+    API_CONTACT_NAME: str = "Andrey Voevodin"
+    API_CONTACT_URL: str = "https://github.com/avoevodin"
+    API_CONTACT_EMAIL: str = "avoevodin8888@gmail.com"
+
+    LICENSE_NAME: str = "MIT License"
+    LICENSE_URL: str = "https://github.com/avoevodin/bshr/blob/master/LICENSE"
+
     API_PREFIX: str = "/api/v1"
     SERVER_NAME: str = "bshr"
     SERVER_HOST: str = "0.0.0.0"
