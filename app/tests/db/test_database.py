@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 @pytest.mark.asyncio
 async def test_init_db_without_first_user_email(
-    settings_env_dict_function_scope,
+    settings_env_dict_function_scope: dict,
 ) -> None:
     settings_env_dict_function_scope["FIRST_SUPERUSER_EMAIL"] = ""
     with mock.patch.dict(os.environ, settings_env_dict_function_scope):

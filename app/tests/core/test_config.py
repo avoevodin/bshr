@@ -84,18 +84,19 @@ def test_import_config_with_cors_backend_list(
 
 
 def test_import_config_with_invalid_cors_backend(
-    settings_env_dict_function_scope,
+    settings_env_dict_function_scope: dict,
 ) -> None:
     BACKEND_CORS_ORIGINS_LIST = "invalid_string"
     settings_env_dict_function_scope["BACKEND_CORS_ORIGINS"] = BACKEND_CORS_ORIGINS_LIST
     with mock.patch.dict(os.environ, settings_env_dict_function_scope):
         from app.core.config import Settings
 
-        with pytest.raises(ValidationError) as e:
+        with pytest.raises(ValidationError):
             settings = Settings()
+            assert isinstance(settings, BaseSettings)
 
 
-def test_database_uri_set_directly(settings_env_dict_function_scope) -> None:
+def test_database_uri_set_directly(settings_env_dict_function_scope: dict) -> None:
     settings_env_dict_function_scope[
         "SQLALCHEMY_DATABASE_URI"
     ] = "postgresql://test:password@example:54321/mock_db"

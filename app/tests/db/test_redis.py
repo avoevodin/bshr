@@ -1,9 +1,8 @@
-import importlib
 import os
 from unittest import mock
 
 import pytest
-from redis.client import Redis
+
 from app.tests.utils.utils import get_settings_env_dict
 
 with mock.patch.dict(os.environ, get_settings_env_dict()):
@@ -22,7 +21,7 @@ async def test_redis_get() -> None:
 
 
 @pytest.mark.asyncio
-async def test_set_redis_key():
+async def test_set_redis_key() -> None:
     redis = mock.MagicMock()
     redis.client.return_value.__aenter__.return_value.set.return_value = True
     res = await set_redis_key(redis=redis, key="test key", value="test value")
@@ -33,7 +32,7 @@ async def test_set_redis_key():
 
 
 @pytest.mark.asyncio
-async def test_set_redis_key_with_expire():
+async def test_set_redis_key_with_expire() -> None:
     redis = mock.MagicMock()
     expire = 60 * 60
     redis.client.return_value.__aenter__.return_value.set.return_value = True
