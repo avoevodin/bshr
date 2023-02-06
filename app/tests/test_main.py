@@ -10,23 +10,25 @@ from pydantic import BaseSettings
 from redis import Redis
 from sqlalchemy.ext.asyncio import create_async_engine
 from starlette import status
+from starlette.middleware.cors import CORSMiddleware
 
 from app.tests.utils.utils import get_settings_env_dict
 
 
 @pytest.mark.asyncio
-async def test_read_main(settings_with_test_env: BaseSettings, get_client: AsyncClient):
+async def test_read_main(
+    settings_with_test_env: BaseSettings, get_client: AsyncClient
+) -> None:
     settings = settings_with_test_env
-    with mock.patch("app.db.redis.get_redis_key", return_value=0) as redis_get:
-        response = await get_client.get(f"{settings.API_PREFIX}/utils/health")
-        assert response.status_code == status.HTTP_200_OK
-        assert response.json() == {"detail": "OK"}
+    response = await get_client.get(f"{settings.API_PREFIX}/utils/health")
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {"detail": "OK"}
 
 
 @pytest.mark.asyncio
 async def test_read_main_without_cors(
     get_redis: Redis, db_test_url: str, redis_test_url: str
-):
+) -> None:
     settings_dict = get_settings_env_dict()
     settings_dict["BACKEND_CORS_ORIGINS"] = "[]"
     url = db_test_url

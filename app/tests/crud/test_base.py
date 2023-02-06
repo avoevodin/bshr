@@ -1,11 +1,9 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import crud, models, schemas
+from app import models
 from app.crud.base import CRUDBase
-from app.core.security import verify_password
 from app.tests.utils.user import create_random_user
-from app.tests.utils.utils import random_email, random_lower_string
 
 
 @pytest.mark.asyncio
@@ -53,7 +51,7 @@ async def test_update_obj_with_dict(
     db: AsyncSession, some_user_for_function: models.User
 ) -> None:
     """
-    Test update obj crud operation with dict
+    Test update obj crud operation with dict.
 
     Args:
         db: SQLAlchemy session
@@ -77,7 +75,7 @@ async def test_remove_obj(
     db: AsyncSession, some_user_for_function: models.User
 ) -> None:
     """
-    Test remove obj crud operation
+    Test remove obj crud operation.
 
     Args:
         db: SQLAlchemy session

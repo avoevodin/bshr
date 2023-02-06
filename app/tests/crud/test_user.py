@@ -77,7 +77,6 @@ async def test_update_user(
     Returns:
         None
     """
-
     password = random_lower_string(8)
     user_update_data = schemas.UserUpdate(
         email=random_email(),
@@ -107,8 +106,6 @@ async def test_deactivate_user(
     Returns:
         None
     """
-
-    password = random_lower_string(8)
     user_update_data = schemas.UserUpdate(
         is_active=False,
     )
@@ -146,7 +143,7 @@ def test_user_is_not_superuser_by_default(some_user_for_session: models.User) ->
 
 
 @pytest.mark.asyncio
-async def test_authenticate_by_email_success(db) -> None:
+async def test_authenticate_by_email_success(db: AsyncSession) -> None:
     """
     Test success authentication by email.
 
@@ -169,7 +166,7 @@ async def test_authenticate_by_email_success(db) -> None:
 
 
 @pytest.mark.asyncio
-async def test_authenticate_by_email_fail_invalid_password(db) -> None:
+async def test_authenticate_by_email_fail_invalid_password(db: AsyncSession) -> None:
     """
     Test fail email authentication with invalid password.
 
@@ -192,7 +189,7 @@ async def test_authenticate_by_email_fail_invalid_password(db) -> None:
 
 
 @pytest.mark.asyncio
-async def test_authenticate_by_email_fail_invalid_email(db) -> None:
+async def test_authenticate_by_email_fail_invalid_email(db: AsyncSession) -> None:
     """
     Test fail email authentication with invalid email.
 
@@ -215,7 +212,7 @@ async def test_authenticate_by_email_fail_invalid_email(db) -> None:
 
 
 @pytest.mark.asyncio
-async def test_authenticate_by_username_success(db) -> None:
+async def test_authenticate_by_username_success(db: AsyncSession) -> None:
     """
     Test success authentication by username.
 
@@ -238,7 +235,7 @@ async def test_authenticate_by_username_success(db) -> None:
 
 
 @pytest.mark.asyncio
-async def test_authenticate_by_username_fail_invalid_password(db) -> None:
+async def test_authenticate_by_username_fail_invalid_password(db: AsyncSession) -> None:
     """
     Test fail username authentication with invalid password.
 
@@ -261,7 +258,7 @@ async def test_authenticate_by_username_fail_invalid_password(db) -> None:
 
 
 @pytest.mark.asyncio
-async def test_authenticate_by_email_fail_invalid_username(db) -> None:
+async def test_authenticate_by_email_fail_invalid_username(db: AsyncSession) -> None:
     """
     Test fail username authentication with invalid username.
 

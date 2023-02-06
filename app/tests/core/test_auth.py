@@ -1,16 +1,14 @@
-from datetime import timedelta, datetime, timezone
-import importlib
 import json
 import os
-from uuid import uuid4
-
+from datetime import timedelta, datetime, timezone
 from unittest import mock
+from uuid import uuid4
 
 from app.schemas import TokenSubject
 from app.tests.utils.utils import random_lower_string, random_email
 
 
-def test_create_access_token(settings_env_dict_function_scope) -> None:
+def test_create_access_token(settings_env_dict_function_scope: dict) -> None:
     settings_env_dict_function_scope["ACCESS_TOKEN_EXPIRE_MINUTES"] = "5"
     with mock.patch.dict(os.environ, settings_env_dict_function_scope):
         from app.core.config import settings
@@ -38,11 +36,10 @@ def test_create_access_token(settings_env_dict_function_scope) -> None:
 
 
 def test_create_access_token_with_expires_data(
-    settings_env_dict_function_scope,
+    settings_env_dict_function_scope: dict,
 ) -> None:
     settings_env_dict_function_scope["ACCESS_TOKEN_EXPIRE_MINUTES"] = "5"
     with mock.patch.dict(os.environ, settings_env_dict_function_scope):
-        from app.core.config import settings
         from app.core.auth import create_access_token, decode_token
 
         token_subject_dict = {
@@ -71,9 +68,8 @@ def test_create_access_token_with_expires_data(
         )
 
 
-def test_create_tokens(settings_env_dict_function_scope) -> None:
+def test_create_tokens(settings_env_dict_function_scope: dict) -> None:
     with mock.patch.dict(os.environ, settings_env_dict_function_scope):
-        from app.core.config import settings
         from app.core.auth import create_tokens
 
         token_subject_dict = {
