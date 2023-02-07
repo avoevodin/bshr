@@ -163,9 +163,7 @@ async def get_redis(redis_test_url: str) -> Redis:
 @pytest_asyncio.fixture(scope="session")
 async def get_app(
     engine: AsyncEngine,
-    db_test_url: str,
     get_redis: Redis,
-    redis_test_url: str,
     settings_env_dict_session_scope: dict,
 ) -> FastAPI:
     """
@@ -173,10 +171,8 @@ async def get_app(
 
     Args:
         engine: async database engine instance
-        database_test_url: db connection url
         get_redis: redis instance
-        redis_test_url: redis connection instance
-        test_settings_env_dict: test env vars for settings
+        settings_env_dict_session_scope: test env vars for settings
 
     Returns:
         FastAPI wsgi application instance

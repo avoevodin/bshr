@@ -5,6 +5,7 @@ from unittest import mock
 
 import pytest
 from asgi_lifespan import LifespanManager
+from fastapi import FastAPI
 from httpx import AsyncClient
 from pydantic import BaseSettings
 from redis import Redis
@@ -16,11 +17,8 @@ from app.tests.utils.utils import get_settings_env_dict
 
 
 @pytest.mark.asyncio
-async def test_read_main(
-    settings_with_test_env: BaseSettings, get_client: AsyncClient
-) -> None:
-    settings = settings_with_test_env
-    response = await get_client.get(f"{settings.API_PREFIX}/utils/health")
+async def test_read_main(get_client: AsyncClient, get_app: FastAPI) -> None:
+    response = await get_client.get(get_app.url_path_for("health-check"))
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {"detail": "OK"}
 
