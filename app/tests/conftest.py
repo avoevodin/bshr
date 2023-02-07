@@ -185,12 +185,13 @@ async def get_app(
                 "redis.asyncio.from_url", return_value=get_redis
             ) as create_redis:
                 with mock.patch("app.db.redis.get_redis_key", return_value=0):
-                    create_eng.return_value = engine
-                    create_redis.return_value = get_redis
-                    from app.main import app
+                    with mock.patch("app.db.redis.set_redis_key", return_value=0):
+                        create_eng.return_value = engine
+                        create_redis.return_value = get_redis
+                        from app.main import app
 
-                    async with LifespanManager(app):
-                        yield app
+                        async with LifespanManager(app):
+                            yield app
 
 
 @pytest_asyncio.fixture(scope="session")
