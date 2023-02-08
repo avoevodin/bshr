@@ -184,8 +184,12 @@ async def get_app(
             with mock.patch(
                 "redis.asyncio.from_url", return_value=get_redis
             ) as create_redis:
-                with mock.patch("app.db.redis.get_redis_key", return_value=0):
-                    with mock.patch("app.db.redis.set_redis_key", return_value=0):
+                with mock.patch(
+                    "app.db.redis.get_redis_key", return_value="0".encode("utf-8")
+                ):
+                    with mock.patch(
+                        "app.db.redis.set_redis_key", return_value="0".encode("utf-8")
+                    ):
                         create_eng.return_value = engine
                         create_redis.return_value = get_redis
                         from app.main import app
