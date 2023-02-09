@@ -172,4 +172,8 @@ async def test_login_refresh_token(
         get_app.url_path_for("auth:token-refresh"),
         headers={"Authorization": f"Bearer {refresh_token}"},
     )
-    assert response
+    assert response.status_code == status.HTTP_200_OK
+    token = response.json()
+    assert "access_token" in token
+    assert "refresh_token" in token
+    assert token.get("token_type") == "refresh_token"
