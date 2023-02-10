@@ -177,3 +177,9 @@ async def test_login_refresh_token(
     assert "access_token" in token
     assert "refresh_token" in token
     assert token.get("token_type") == "refresh_token"
+    assert (
+        len(token.get("access_token").split(".")) == 3
+    ), "JWT token should have 3 segments"
+    assert (
+        len(token.get("refresh_token").split(".")) == 3
+    ), "JWT token should have 3 segments"
