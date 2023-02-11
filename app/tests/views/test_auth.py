@@ -183,3 +183,5 @@ async def test_login_refresh_token(
     assert (
         len(token.get("refresh_token").split(".")) == 3
     ), "JWT token should have 3 segments"
+    access_payload = auth.decode_token(token.get("access_token"))
+    assert "exp" in access_payload
