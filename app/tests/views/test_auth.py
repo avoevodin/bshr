@@ -185,3 +185,5 @@ async def test_login_refresh_token(
     ), "JWT token should have 3 segments"
     access_payload = auth.decode_token(token.get("access_token"))
     assert "exp" in access_payload
+    access_sub = TokenSubject.parse_obj(json.loads(access_payload.get("sub")))
+    assert access_sub.email == user_data.email
