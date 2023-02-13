@@ -187,3 +187,4 @@ async def test_login_refresh_token(
     assert "exp" in access_payload
     access_sub = TokenSubject.parse_obj(json.loads(access_payload.get("sub")))
     assert access_sub.email == user_data.email
+    assert access_sub.username == user_data.username
