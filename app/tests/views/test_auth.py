@@ -81,6 +81,18 @@ async def test_login_access_token_email(
     assert "access_token" in token
     assert "refresh_token" in token
     assert token.get("token_type") == "bearer"
+    assert (
+        len(token.get("access_token").split(".")) == 3
+    ), "JWT token should have 3 segments"
+    assert (
+        len(token.get("refresh_token").split(".")) == 3
+    ), "JWT token should have 3 segments"
+    access_payload = auth.decode_token(token.get("access_token"))
+    assert "exp" in access_payload
+    access_sub = TokenSubject.parse_obj(json.loads(access_payload.get("sub")))
+    assert access_sub.email == user_data.email
+    assert access_sub.username == user_data.username
+    assert access_sub.id == user_db.id
 
 
 @pytest.mark.asyncio
@@ -177,14 +189,3 @@ async def test_login_refresh_token(
     assert "access_token" in token
     assert "refresh_token" in token
     assert token.get("token_type") == "refresh_token"
-    assert (
-        len(token.get("access_token").split(".")) == 3
-    ), "JWT token should have 3 segments"
-    assert (
-        len(token.get("refresh_token").split(".")) == 3
-    ), "JWT token should have 3 segments"
-    access_payload = auth.decode_token(token.get("access_token"))
-    assert "exp" in access_payload
-    access_sub = TokenSubject.parse_obj(json.loads(access_payload.get("sub")))
-    assert access_sub.email == user_data.email
-    assert access_sub.username == user_data.username
