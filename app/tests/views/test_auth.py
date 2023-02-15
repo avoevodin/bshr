@@ -93,6 +93,9 @@ async def test_login_access_token_email(
     assert access_sub.email == user_data.email
     assert access_sub.username == user_data.username
     assert access_sub.id == user_db.id
+    assert access_sub.id == user_db.id
+    assert access_sub.jti
+    assert access_sub.scope == []
 
 
 @pytest.mark.asyncio
