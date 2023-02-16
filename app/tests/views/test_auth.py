@@ -96,6 +96,7 @@ async def test_login_access_token_email(
     assert access_sub.id == user_db.id
     assert access_sub.jti
     assert access_sub.scope == []
+    assert access_sub.token_type == "access_token"
 
 
 @pytest.mark.asyncio
