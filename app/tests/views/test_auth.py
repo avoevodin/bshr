@@ -97,6 +97,8 @@ async def test_login_access_token_email(
     assert access_sub.jti
     assert access_sub.scope == []
     assert access_sub.token_type == "access_token"
+    refresh_payload = auth.decode_token(token.get("refresh_token"))
+    assert "exp" in refresh_payload
 
 
 @pytest.mark.asyncio
