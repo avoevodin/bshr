@@ -101,6 +101,7 @@ async def test_login_access_token_email(
     assert "exp" in refresh_payload
     refresh_sub = TokenSubject.parse_obj(json.loads(access_payload.get("sub")))
     assert refresh_sub.email == user_data.email
+    assert refresh_sub.username == user_data.username
 
 
 @pytest.mark.asyncio
