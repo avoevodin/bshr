@@ -93,7 +93,6 @@ async def test_login_access_token_email(
     assert access_sub.email == user_data.email
     assert access_sub.username == user_data.username
     assert access_sub.id == user_db.id
-    assert access_sub.id == user_db.id
     assert access_sub.jti
     assert access_sub.scope == []
     assert access_sub.token_type == "access_token"
@@ -102,6 +101,7 @@ async def test_login_access_token_email(
     refresh_sub = TokenSubject.parse_obj(json.loads(access_payload.get("sub")))
     assert refresh_sub.email == user_data.email
     assert refresh_sub.username == user_data.username
+    assert refresh_sub.id == user_db.id
 
 
 @pytest.mark.asyncio
