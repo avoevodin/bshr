@@ -236,4 +236,3 @@ async def test_login_refresh_token_with_jwt_error(
         headers={"Authorization": f"Bearer {refresh_token}"},
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-
