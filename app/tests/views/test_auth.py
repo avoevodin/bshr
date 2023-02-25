@@ -201,3 +201,39 @@ async def test_login_refresh_token(
     assert "access_token" in token
     assert "refresh_token" in token
     assert token.get("token_type") == "refresh_token"
+
+
+@pytest.mark.asyncio
+async def test_login_refresh_token_with_jwt_error(
+    db: AsyncSession,
+    get_client: AsyncClient,
+    get_app: FastAPI,
+) -> None:
+    password = random_lower_string(8)
+    user_data = schemas.UserCreate(
+        username=random_lower_string(8),
+        email=random_email(),
+        password=password,
+    )
+    await crud.user.create(db, obj_in=user_data)
+
+    response = await get_client.post(
+        get_app.url_path_for("auth:token"),
+        data={"username": user_data.username, "password": password},
+        headers={"content-type": "application/x-www-form-urlencoded"},
+    )
+    assert response.status_code == status.HTTP_200_OK
+    token = response.json()
+    assert "refresh_token" in token
+    refresh_token = token["refresh_token"]
+    payload = auth.decode_token(refresh_token)
+    token_data = TokenPayload.parse_obj(payload)
+    token_sub = TokenSubject.parse_obj(json.loads(token_data.sub))
+    token_sub.id = 0
+    refresh_token = create_access_token(token_sub)[:-2]
+    response = await get_client.post(
+        get_app.url_path_for("auth:token-refresh"),
+        headers={"Authorization": f"Bearer {refresh_token}"},
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
