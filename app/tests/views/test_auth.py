@@ -26,7 +26,7 @@ async def test_login_access_token_username(
         email=random_email(),
         password=password,
     )
-    user_db = await crud.user.create(db, obj_in=user_data)
+    await crud.user.create(db, obj_in=user_data)
 
     response = await get_client.post(
         get_app.url_path_for("auth:token"),
