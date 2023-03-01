@@ -24,3 +24,5 @@ async def test_user_register_username_success(
         get_app.url_path_for("users:register"), content=user_data.json()
     )
     assert response.status_code == status.HTTP_200_OK
+    user_db = await crud.user.get_by_email(db, email=user_data.email)
+    assert user_db.email == user_data.email
