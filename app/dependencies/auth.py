@@ -11,8 +11,8 @@ from starlette import status
 from starlette.requests import Request
 
 from app import models, crud, schemas
+from app.core import auth
 from app.core.auth import reusable_oauth2
-from app.core.config import settings
 
 
 async def get_current_user(
@@ -30,10 +30,8 @@ async def get_current_user(
     """
     db = request.app.state.db
     try:
-        payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
-        )
-        token_data = schemas.TokenPayload(**payload)
+        payload = auth.decode_token(token)
+        token_data = schemas.TokenPayload.parse_obj(payload)
     except (jwt.JWTError, ValidationError) as e:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

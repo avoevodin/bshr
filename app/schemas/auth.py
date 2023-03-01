@@ -33,7 +33,7 @@ class TokenSubject(BaseModel):
     email: str
     jti: str
     token_type: str
-    scope: List[str]
+    scope: List[str] = []
 
 
 class TokenPayload(BaseModel):

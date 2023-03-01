@@ -44,7 +44,11 @@ async def health_check(request: Request) -> dict:
         assert one == 1
         await get_redis_key(redis, uuid.uuid4().hex)
         return {"detail": "OK"}
-    except (ConnectionRefusedError, InterfaceError, ConnectionError):
+    except (
+        ConnectionRefusedError,
+        InterfaceError,
+        ConnectionError,
+    ):  # pragma: no cover
         raise HTTPException(
             detail="connection failed", status_code=status.HTTP_503_SERVICE_UNAVAILABLE
         )
