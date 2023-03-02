@@ -26,3 +26,4 @@ async def test_user_register_username_success(
     assert response.status_code == status.HTTP_200_OK
     user_db = await crud.user.get_by_email(db, email=user_data.email)
     assert user_db.email == user_data.email
+    assert user_db.username == user_data.username
