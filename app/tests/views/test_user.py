@@ -125,3 +125,13 @@ async def test_user_register_twice(
         f"({user_data.username}) already exists"
         in response.content.decode()
     )
+
+
+@pytest.mark.asyncio
+async def test_read_users_list_unauthorized(
+    db: AsyncSession,
+    get_client: AsyncClient,
+    get_app: FastAPI,
+) -> None:
+    response = await get_client.get(get_app.url_path_for("users:read_users"))
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
