@@ -135,3 +135,4 @@ async def test_read_users_list_unauthorized(
 ) -> None:
     response = await get_client.get(get_app.url_path_for("users:read_users"))
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert "Not authenticated" in response.content.decode()
