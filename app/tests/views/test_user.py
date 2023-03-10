@@ -136,3 +136,28 @@ async def test_read_users_list_unauthorized(
     response = await get_client.get(get_app.url_path_for("users:read_users"))
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert "Not authenticated" in response.content.decode()
+
+
+@pytest.mark.asyncio
+async def test_read_users_list_success_permission_denied(
+    db: AsyncSession,
+    get_client: AsyncClient,
+    get_app: FastAPI,
+) -> None:
+    password = random_lower_string(8)
+    user_data = schemas.UserCreate(
+        username=random_lower_string(8),
+        email=random_email(),
+        password=password,
+    )
+    response = await get_client.post(
+        get_app.url_path_for("users:register"), content=user_data.json()
+    )
+    assert response.status_code == status.HTTP_200_OK
+    response = await get_client.post(
+        get_app.url_path_for("auth:token"),
+        data={"username": user_data.username, "password": password},
+        headers={"content-type": "application/x-www-form-urlencoded"},
+    )
+    # response = await get_client.get(get_app.url_path_for("users:read_users"))
+    # assert response.status_code == status.HTTP_200_OK
