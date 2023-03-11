@@ -159,5 +159,9 @@ async def test_read_users_list_success_permission_denied(
         data={"username": user_data.username, "password": password},
         headers={"content-type": "application/x-www-form-urlencoded"},
     )
-    # response = await get_client.get(get_app.url_path_for("users:read_users"))
-    # assert response.status_code == status.HTTP_200_OK
+    token = response.json()
+    response = await get_client.get(
+        get_app.url_path_for("users:read_users"),
+        headers={"Authorization": f"Bearer {token.get('access_token')}"},
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
