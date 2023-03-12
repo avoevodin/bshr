@@ -165,3 +165,4 @@ async def test_read_users_list_success_permission_denied(
         headers={"Authorization": f"Bearer {token.get('access_token')}"},
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "The user doesn't have enough privileges." in response.content.decode()
