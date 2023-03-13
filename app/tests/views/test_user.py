@@ -1,6 +1,7 @@
 import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
+from pydantic import BaseSettings
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
@@ -139,7 +140,7 @@ async def test_read_users_list_unauthorized(
 
 
 @pytest.mark.asyncio
-async def test_read_users_list_success_permission_denied(
+async def test_read_users_list_permission_denied(
     db: AsyncSession,
     get_client: AsyncClient,
     get_app: FastAPI,
@@ -166,3 +167,29 @@ async def test_read_users_list_success_permission_denied(
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "The user doesn't have enough privileges." in response.content.decode()
+
+
+@pytest.mark.asyncio
+async def test_read_users_list_success(
+    db: AsyncSession,
+    get_client: AsyncClient,
+    get_app: FastAPI,
+    settings_with_test_env: BaseSettings,
+) -> None:
+    password = random_lower_string(8)
+    user_data = schemas.UserCreate(
+        username=settings_with_test_env.FIRST_SUPERUSER,
+        email=settings_with_test_env.FIRST_SUPERUSER_EMAIL,
+        password=settings_with_test_env.FIRST_SUPERUSER_PASSWORD,
+    )
+    response = await get_client.post(
+        get_app.url_path_for("auth:token"),
+        data={"username": user_data.username, "password": password},
+        headers={"content-type": "application/x-www-form-urlencoded"},
+    )
+    token = response.json()
+    response = await get_client.get(
+        get_app.url_path_for("users:read_users"),
+        headers={"Authorization": f"Bearer {token.get('access_token')}"},
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
