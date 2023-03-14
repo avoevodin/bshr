@@ -176,7 +176,6 @@ async def test_read_users_list_success(
     get_app: FastAPI,
     settings_with_test_env: BaseSettings,
 ) -> None:
-    password = random_lower_string(8)
     user_data = schemas.UserCreate(
         username=settings_with_test_env.FIRST_SUPERUSER,
         email=settings_with_test_env.FIRST_SUPERUSER_EMAIL,
@@ -184,7 +183,10 @@ async def test_read_users_list_success(
     )
     response = await get_client.post(
         get_app.url_path_for("auth:token"),
-        data={"username": user_data.username, "password": password},
+        data={
+            "username": user_data.username,
+            "password": settings_with_test_env.FIRST_SUPERUSER_PASSWORD,
+        },
         headers={"content-type": "application/x-www-form-urlencoded"},
     )
     token = response.json()
@@ -192,4 +194,6 @@ async def test_read_users_list_success(
         get_app.url_path_for("users:read_users"),
         headers={"Authorization": f"Bearer {token.get('access_token')}"},
     )
-    assert response.status_code == status.HTTP_403_FORBIDDEN
+    # users_list = await crud.user.get_multi(db)
+    assert response.status_code == status.HTTP_200_OK
+    # assert response.content.decode() == users_list
