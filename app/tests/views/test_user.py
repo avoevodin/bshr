@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
@@ -194,6 +196,6 @@ async def test_read_users_list_success(
         get_app.url_path_for("users:read_users"),
         headers={"Authorization": f"Bearer {token.get('access_token')}"},
     )
-    # users_list = await crud.user.get_multi(db)
+    users_list = await crud.user.get_multi(db)
     assert response.status_code == status.HTTP_200_OK
-    # assert response.content.decode() == users_list
+    assert len(json.loads(response.content.decode())) == len(users_list)
