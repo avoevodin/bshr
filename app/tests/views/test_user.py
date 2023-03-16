@@ -199,3 +199,15 @@ async def test_read_users_list_success(
     users_list = await crud.user.get_multi(db)
     assert response.status_code == status.HTTP_200_OK
     assert len(json.loads(response.content.decode())) == len(users_list)
+
+
+@pytest.mark.asyncio
+async def test_update_unauthorized(
+    db: AsyncSession,
+    get_client: AsyncClient,
+    get_app: FastAPI,
+    settings_with_test_env: BaseSettings,
+) -> None:
+    response = await get_client.patch(get_app.url_path_for("users:update", user_id=-1))
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert "Not authenticated" in response.content.decode()
