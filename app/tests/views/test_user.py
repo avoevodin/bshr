@@ -7,7 +7,7 @@ from pydantic import BaseSettings
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from app import schemas, crud
+from app import schemas, crud, models
 from app.core.security import verify_password
 from app.tests.utils.utils import random_lower_string, random_email
 
@@ -243,3 +243,35 @@ async def test_update_not_found(
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert f"User with id <{user_id}> not found" in response.content.decode()
+
+
+@pytest.mark.asyncio
+async def test_update_with_superuser(
+    db: AsyncSession,
+    get_client: AsyncClient,
+    get_app: FastAPI,
+    settings_with_test_env: BaseSettings,
+    some_user_for_function: models.User,
+) -> None:
+    user_data = schemas.UserCreate(
+        username=settings_with_test_env.FIRST_SUPERUSER,
+        email=settings_with_test_env.FIRST_SUPERUSER_EMAIL,
+        password=settings_with_test_env.FIRST_SUPERUSER_PASSWORD,
+    )
+    response = await get_client.post(
+        get_app.url_path_for("auth:token"),
+        data={
+            "username": user_data.username,
+            "password": settings_with_test_env.FIRST_SUPERUSER_PASSWORD,
+        },
+        headers={"content-type": "application/x-www-form-urlencoded"},
+    )
+    user_update_data = schemas.UserUpdate(email="some_new@email.com")
+    user_id = some_user_for_function.id
+    token = response.json()
+    # response = await get_client.patch(
+    #     get_app.url_path_for("users:update", user_id=user_id),
+    #     headers={"Authorization": f"Bearer {token.get('access_token')}"},
+    #     content=user_update_data.json(),
+    # )
+    # assert response.status_code == status.HTTP_200_OK
