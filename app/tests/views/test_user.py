@@ -269,9 +269,9 @@ async def test_update_with_superuser(
     user_update_data = schemas.UserUpdate(email="some_new@email.com")
     user_id = some_user_for_function.id
     token = response.json()
-    # response = await get_client.patch(
-    #     get_app.url_path_for("users:update", user_id=user_id),
-    #     headers={"Authorization": f"Bearer {token.get('access_token')}"},
-    #     content=user_update_data.json(),
-    # )
-    # assert response.status_code == status.HTTP_200_OK
+    response = await get_client.patch(
+        get_app.url_path_for("users:update", user_id=user_id),
+        headers={"Authorization": f"Bearer {token.get('access_token')}"},
+        content=user_update_data.json(),
+    )
+    assert response.status_code == status.HTTP_200_OK
