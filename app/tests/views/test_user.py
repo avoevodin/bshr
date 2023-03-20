@@ -253,15 +253,10 @@ async def test_update_with_superuser(
     settings_with_test_env: BaseSettings,
     some_user_for_function: models.User,
 ) -> None:
-    user_data = schemas.UserCreate(
-        username=settings_with_test_env.FIRST_SUPERUSER,
-        email=settings_with_test_env.FIRST_SUPERUSER_EMAIL,
-        password=settings_with_test_env.FIRST_SUPERUSER_PASSWORD,
-    )
     response = await get_client.post(
         get_app.url_path_for("auth:token"),
         data={
-            "username": user_data.username,
+            "username": settings_with_test_env.FIRST_SUPERUSER,
             "password": settings_with_test_env.FIRST_SUPERUSER_PASSWORD,
         },
         headers={"content-type": "application/x-www-form-urlencoded"},
@@ -275,3 +270,6 @@ async def test_update_with_superuser(
         content=user_update_data.json(),
     )
     assert response.status_code == status.HTTP_200_OK
+    user_db = await crud.user.get(db, id=user_id)
+    user_updated = json.loads(response.content.decode())
+    # assert user_db.email == user_updated.get("email")
