@@ -270,6 +270,6 @@ async def test_update_with_superuser(
         content=user_update_data.json(),
     )
     assert response.status_code == status.HTTP_200_OK
-    user_db = await crud.user.get(db, id=user_id)
+    await db.refresh(some_user_for_function)
     user_updated = json.loads(response.content.decode())
-    # assert user_db.email == user_updated.get("email")
+    assert some_user_for_function.email == user_updated.get("email")
