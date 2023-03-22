@@ -273,3 +273,32 @@ async def test_update_with_superuser(
     await db.refresh(some_user_for_function)
     user_updated = json.loads(response.content.decode())
     assert some_user_for_function.email == user_updated.get("email")
+
+
+@pytest.mark.asyncio
+async def test_update_with_another_user(
+    db: AsyncSession,
+    get_client: AsyncClient,
+    get_app: FastAPI,
+    settings_with_test_env: BaseSettings,
+    some_user_for_function: models.User,
+) -> None:
+    password = random_lower_string(8)
+    user_data = schemas.UserCreate(
+        username=random_lower_string(8),
+        email=random_email(),
+        password=password,
+    )
+    response = await get_client.post(
+        get_app.url_path_for("users:register"), content=user_data.json()
+    )
+    assert response.status_code == status.HTTP_200_OK
+    user_update_data = schemas.UserUpdate(email="some_new@email.com")
+    user_id = some_user_for_function.id
+    token = response.json()
+    response = await get_client.patch(
+        get_app.url_path_for("users:update", user_id=user_id),
+        headers={"Authorization": f"Bearer {token.get('access_token')}"},
+        content=user_update_data.json(),
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
