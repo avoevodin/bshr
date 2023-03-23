@@ -293,6 +293,14 @@ async def test_update_with_another_user(
         get_app.url_path_for("users:register"), content=user_data.json()
     )
     assert response.status_code == status.HTTP_200_OK
+    response = await get_client.post(
+        get_app.url_path_for("auth:token"),
+        data={
+            "username": user_data.username,
+            "password": password,
+        },
+        headers={"content-type": "application/x-www-form-urlencoded"},
+    )
     user_update_data = schemas.UserUpdate(email="some_new@email.com")
     user_id = some_user_for_function.id
     token = response.json()
@@ -302,3 +310,4 @@ async def test_update_with_another_user(
         content=user_update_data.json(),
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert "The user doesn't have enough privileges." in response.content.decode()
