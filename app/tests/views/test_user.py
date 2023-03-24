@@ -233,7 +233,7 @@ async def test_update_not_found(
         },
         headers={"content-type": "application/x-www-form-urlencoded"},
     )
-    user_update_data = schemas.UserUpdate(email="some_new@email.com")
+    user_update_data = schemas.UserUpdate(email=random_email())
     user_id = -1
     token = response.json()
     response = await get_client.patch(
@@ -261,7 +261,7 @@ async def test_update_with_superuser(
         },
         headers={"content-type": "application/x-www-form-urlencoded"},
     )
-    user_update_data = schemas.UserUpdate(email="some_new@email.com")
+    user_update_data = schemas.UserUpdate(email=random_email())
     user_id = some_user_for_function.id
     token = response.json()
     response = await get_client.patch(
@@ -301,7 +301,7 @@ async def test_update_with_another_user(
         },
         headers={"content-type": "application/x-www-form-urlencoded"},
     )
-    user_update_data = schemas.UserUpdate(email="some_new@email.com")
+    user_update_data = schemas.UserUpdate(email=random_email())
     user_id = some_user_for_function.id
     token = response.json()
     response = await get_client.patch(
@@ -311,3 +311,40 @@ async def test_update_with_another_user(
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert "The user doesn't have enough privileges." in response.content.decode()
+
+
+@pytest.mark.asyncio
+async def test_update_success_current_user(
+    db: AsyncSession,
+    get_client: AsyncClient,
+    get_app: FastAPI,
+    settings_with_test_env: BaseSettings,
+) -> None:
+    password = random_lower_string(8)
+    user_data = schemas.UserCreate(
+        username=random_lower_string(8),
+        email=random_email(),
+        password=password,
+    )
+    response = await get_client.post(
+        get_app.url_path_for("users:register"), content=user_data.json()
+    )
+    assert response.status_code == status.HTTP_200_OK
+    user_data = schemas.User.parse_obj(json.loads(response.content.decode()))
+    response = await get_client.post(
+        get_app.url_path_for("auth:token"),
+        data={
+            "username": user_data.username,
+            "password": password,
+        },
+        headers={"content-type": "application/x-www-form-urlencoded"},
+    )
+    user_update_data = schemas.UserUpdate(email=random_email())
+    user_id = user_data.id
+    token = response.json()
+    response = await get_client.patch(
+        get_app.url_path_for("users:update", user_id=user_id),
+        headers={"Authorization": f"Bearer {token.get('access_token')}"},
+        content=user_update_data.json(),
+    )
+    assert response.status_code == status.HTTP_200_OK
