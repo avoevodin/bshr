@@ -350,3 +350,4 @@ async def test_update_success_current_user(
     assert response.status_code == status.HTTP_200_OK
     user_updated_data = schemas.User.parse_obj(json.loads(response.content.decode()))
     assert user_id == user_updated_data.id
+    assert user_update_data.email == user_updated_data.email
