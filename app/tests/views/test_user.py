@@ -162,6 +162,7 @@ async def test_read_users_list_permission_denied(
         data={"username": user_data.username, "password": password},
         headers={"content-type": "application/x-www-form-urlencoded"},
     )
+    assert response.status_code == status.HTTP_200_OK
     token = response.json()
     response = await get_client.get(
         get_app.url_path_for("users:read_users"),
@@ -191,6 +192,7 @@ async def test_read_users_list_success(
         },
         headers={"content-type": "application/x-www-form-urlencoded"},
     )
+    assert response.status_code == status.HTTP_200_OK
     token = response.json()
     response = await get_client.get(
         get_app.url_path_for("users:read_users"),
@@ -233,6 +235,7 @@ async def test_update_not_found(
         },
         headers={"content-type": "application/x-www-form-urlencoded"},
     )
+    assert response.status_code == status.HTTP_200_OK
     user_update_data = schemas.UserUpdate(email=random_email())
     user_id = -1
     token = response.json()
@@ -261,6 +264,7 @@ async def test_update_with_superuser(
         },
         headers={"content-type": "application/x-www-form-urlencoded"},
     )
+    assert response.status_code == status.HTTP_200_OK
     user_update_data = schemas.UserUpdate(email=random_email())
     user_id = some_user_for_function.id
     token = response.json()
@@ -301,6 +305,7 @@ async def test_update_with_another_user(
         },
         headers={"content-type": "application/x-www-form-urlencoded"},
     )
+    assert response.status_code == status.HTTP_200_OK
     user_update_data = schemas.UserUpdate(email=random_email())
     user_id = some_user_for_function.id
     token = response.json()
