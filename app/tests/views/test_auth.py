@@ -42,7 +42,6 @@ async def test_login_access_token_username(
 
 @pytest.mark.asyncio
 async def test_login_access_token_user_not_exist(
-    db: AsyncSession,
     get_client: AsyncClient,
     get_app: FastAPI,
 ) -> None:

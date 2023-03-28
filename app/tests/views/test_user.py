@@ -105,7 +105,6 @@ async def test_user_register_email_success(
 
 @pytest.mark.asyncio
 async def test_user_register_twice(
-    db: AsyncSession,
     get_client: AsyncClient,
     get_app: FastAPI,
 ) -> None:
@@ -132,7 +131,6 @@ async def test_user_register_twice(
 
 @pytest.mark.asyncio
 async def test_read_users_list_unauthorized(
-    db: AsyncSession,
     get_client: AsyncClient,
     get_app: FastAPI,
 ) -> None:
@@ -143,7 +141,6 @@ async def test_read_users_list_unauthorized(
 
 @pytest.mark.asyncio
 async def test_read_users_list_permission_denied(
-    db: AsyncSession,
     get_client: AsyncClient,
     get_app: FastAPI,
 ) -> None:
@@ -205,7 +202,6 @@ async def test_read_users_list_success(
 
 @pytest.mark.asyncio
 async def test_update_unauthorized(
-    db: AsyncSession,
     get_client: AsyncClient,
     get_app: FastAPI,
     settings_with_test_env: BaseSettings,
@@ -217,7 +213,6 @@ async def test_update_unauthorized(
 
 @pytest.mark.asyncio
 async def test_update_not_found(
-    db: AsyncSession,
     get_client: AsyncClient,
     get_app: FastAPI,
     settings_with_test_env: BaseSettings,
@@ -281,7 +276,6 @@ async def test_update_with_superuser(
 
 @pytest.mark.asyncio
 async def test_update_with_another_user(
-    db: AsyncSession,
     get_client: AsyncClient,
     get_app: FastAPI,
     settings_with_test_env: BaseSettings,
@@ -320,7 +314,6 @@ async def test_update_with_another_user(
 
 @pytest.mark.asyncio
 async def test_update_success_current_user(
-    db: AsyncSession,
     get_client: AsyncClient,
     get_app: FastAPI,
     settings_with_test_env: BaseSettings,
