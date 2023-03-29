@@ -349,3 +349,15 @@ async def test_update_success_current_user(
     user_updated_data = schemas.User.parse_obj(json.loads(response.content.decode()))
     assert user_id == user_updated_data.id
     assert user_update_data.email == user_updated_data.email
+
+
+@pytest.mark.asyncio
+async def test_get_user_me_unauthorized(
+    get_client: AsyncClient,
+    get_app: FastAPI,
+    settings_with_test_env: BaseSettings,
+) -> None:
+    response = await get_client.get(
+        get_app.url_path_for("users:me"),
+    )
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
