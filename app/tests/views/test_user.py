@@ -361,3 +361,35 @@ async def test_get_user_me_unauthorized(
         get_app.url_path_for("users:me"),
     )
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.asyncio
+async def test_get_user_me_sucess(
+    get_client: AsyncClient,
+    get_app: FastAPI,
+    settings_with_test_env: BaseSettings,
+) -> None:
+    password = random_lower_string(8)
+    user_data = schemas.UserCreate(
+        username=random_lower_string(8),
+        email=random_email(),
+        password=password,
+    )
+    response = await get_client.post(
+        get_app.url_path_for("users:register"), content=user_data.json()
+    )
+    assert response.status_code == status.HTTP_200_OK
+    response = await get_client.post(
+        get_app.url_path_for("auth:token"),
+        data={
+            "username": user_data.username,
+            "password": password,
+        },
+        headers={"content-type": "application/x-www-form-urlencoded"},
+    )
+    token = response.json()
+    response = await get_client.get(
+        get_app.url_path_for("users:me"),
+        headers={"Authorization": f"Bearer {token.get('access_token')}"},
+    )
+    assert response.status_code == status.HTTP_200_OK
