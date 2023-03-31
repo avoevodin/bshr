@@ -378,6 +378,7 @@ async def test_get_user_me_sucess(
     response = await get_client.post(
         get_app.url_path_for("users:register"), content=user_data.json()
     )
+    user_reg_data = json.loads(response.content.decode())
     assert response.status_code == status.HTTP_200_OK
     response = await get_client.post(
         get_app.url_path_for("auth:token"),
@@ -393,3 +394,5 @@ async def test_get_user_me_sucess(
         headers={"Authorization": f"Bearer {token.get('access_token')}"},
     )
     assert response.status_code == status.HTTP_200_OK
+    user_me_data = json.loads(response.content.decode())
+    assert user_reg_data.get("id") == user_me_data.get("id")
