@@ -1,4 +1,5 @@
 import json
+import uuid
 
 import pytest
 from fastapi import FastAPI
@@ -236,3 +237,24 @@ async def test_login_refresh_token_with_jwt_error(
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "Invalid refresh token." in response.content.decode()
+
+
+@pytest.mark.asyncio
+async def test_get_user_me_invalid_token(
+    get_client: AsyncClient,
+    get_app: FastAPI,
+    settings_with_test_env: BaseSettings,
+) -> None:
+    token_sub = schemas.TokenSubject(
+        id=-1,
+        username=random_lower_string(8),
+        email=random_email(),
+        token_type="access_token",
+        jti=uuid.uuid4().hex,
+    )
+    token = create_access_token(token_sub)
+    response = await get_client.get(
+        get_app.url_path_for("users:read_users"),
+        headers={"Authorization": f"Bearer {token[:-1]}"},
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
