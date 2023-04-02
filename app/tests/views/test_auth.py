@@ -258,3 +258,4 @@ async def test_get_user_me_invalid_token(
         headers={"Authorization": f"Bearer {token[:-1]}"},
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert "Could not validate credentials:" in response.content.decode()
