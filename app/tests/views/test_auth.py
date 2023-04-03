@@ -259,3 +259,24 @@ async def test_get_user_me_invalid_token(
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert "Could not validate credentials:" in response.content.decode()
+
+
+@pytest.mark.asyncio
+async def test_get_user_me_not_found(
+    get_client: AsyncClient,
+    get_app: FastAPI,
+    settings_with_test_env: BaseSettings,
+) -> None:
+    token_sub = schemas.TokenSubject(
+        id=-1,
+        username=random_lower_string(8),
+        email=random_email(),
+        token_type="access_token",
+        jti=uuid.uuid4().hex,
+    )
+    token = create_access_token(token_sub)
+    response = await get_client.get(
+        get_app.url_path_for("users:read_users"),
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == status.HTTP_404_NOT_FOUND
