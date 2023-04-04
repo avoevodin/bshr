@@ -280,3 +280,4 @@ async def test_get_user_me_not_found(
         headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert "User hasn't been found." in response.content.decode()
