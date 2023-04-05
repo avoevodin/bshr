@@ -281,3 +281,44 @@ async def test_get_user_me_not_found(
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert "User hasn't been found." in response.content.decode()
+
+
+@pytest.mark.asyncio
+async def test_get_user_me_inactive_user(
+    get_client: AsyncClient,
+    get_app: FastAPI,
+    settings_with_test_env: BaseSettings,
+) -> None:
+    password = random_lower_string(8)
+    user_data = schemas.UserCreate(
+        username=random_lower_string(8),
+        email=random_email(),
+        password=password,
+    )
+    response = await get_client.post(
+        get_app.url_path_for("users:register"), content=user_data.json()
+    )
+    user_reg_data = json.loads(response.content.decode())
+    assert response.status_code == status.HTTP_200_OK
+    response = await get_client.post(
+        get_app.url_path_for("auth:token"),
+        data={
+            "username": user_data.username,
+            "password": password,
+        },
+        headers={"content-type": "application/x-www-form-urlencoded"},
+    )
+    token = response.json()
+    user_update_data = schemas.UserUpdate(is_active=False)
+    user_id = user_reg_data.get("id")
+    response = await get_client.patch(
+        get_app.url_path_for("users:update", user_id=user_id),
+        headers={"Authorization": f"Bearer {token.get('access_token')}"},
+        content=user_update_data.json(),
+    )
+    assert response.status_code == status.HTTP_200_OK
+    response = await get_client.get(
+        get_app.url_path_for("users:read_users"),
+        headers={"Authorization": f"Bearer {token.get('access_token')}"},
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
