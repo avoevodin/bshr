@@ -322,3 +322,4 @@ async def test_get_user_me_inactive_user(
         headers={"Authorization": f"Bearer {token.get('access_token')}"},
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "Inactive user." in response.content.decode()
