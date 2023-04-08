@@ -1,4 +1,5 @@
 import json
+import uuid
 
 import pytest
 from fastapi import FastAPI
@@ -42,7 +43,6 @@ async def test_login_access_token_username(
 
 @pytest.mark.asyncio
 async def test_login_access_token_user_not_exist(
-    db: AsyncSession,
     get_client: AsyncClient,
     get_app: FastAPI,
 ) -> None:
@@ -237,3 +237,89 @@ async def test_login_refresh_token_with_jwt_error(
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "Invalid refresh token." in response.content.decode()
+
+
+@pytest.mark.asyncio
+async def test_get_user_me_invalid_token(
+    get_client: AsyncClient,
+    get_app: FastAPI,
+    settings_with_test_env: BaseSettings,
+) -> None:
+    token_sub = schemas.TokenSubject(
+        id=-1,
+        username=random_lower_string(8),
+        email=random_email(),
+        token_type="access_token",
+        jti=uuid.uuid4().hex,
+    )
+    token = create_access_token(token_sub)
+    response = await get_client.get(
+        get_app.url_path_for("users:read_users"),
+        headers={"Authorization": f"Bearer {token[:-1]}"},
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert "Could not validate credentials:" in response.content.decode()
+
+
+@pytest.mark.asyncio
+async def test_get_user_me_not_found(
+    get_client: AsyncClient,
+    get_app: FastAPI,
+    settings_with_test_env: BaseSettings,
+) -> None:
+    token_sub = schemas.TokenSubject(
+        id=-1,
+        username=random_lower_string(8),
+        email=random_email(),
+        token_type="access_token",
+        jti=uuid.uuid4().hex,
+    )
+    token = create_access_token(token_sub)
+    response = await get_client.get(
+        get_app.url_path_for("users:read_users"),
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert "User hasn't been found." in response.content.decode()
+
+
+@pytest.mark.asyncio
+async def test_get_user_me_inactive_user(
+    get_client: AsyncClient,
+    get_app: FastAPI,
+    settings_with_test_env: BaseSettings,
+) -> None:
+    password = random_lower_string(8)
+    user_data = schemas.UserCreate(
+        username=random_lower_string(8),
+        email=random_email(),
+        password=password,
+    )
+    response = await get_client.post(
+        get_app.url_path_for("users:register"), content=user_data.json()
+    )
+    user_reg_data = json.loads(response.content.decode())
+    assert response.status_code == status.HTTP_200_OK
+    response = await get_client.post(
+        get_app.url_path_for("auth:token"),
+        data={
+            "username": user_data.username,
+            "password": password,
+        },
+        headers={"content-type": "application/x-www-form-urlencoded"},
+    )
+    token = response.json()
+    user_update_data = schemas.UserUpdate(is_active=False)
+    user_id = user_reg_data.get("id")
+    response = await get_client.patch(
+        get_app.url_path_for("users:update", user_id=user_id),
+        headers={"Authorization": f"Bearer {token.get('access_token')}"},
+        content=user_update_data.json(),
+    )
+    assert response.status_code == status.HTTP_200_OK
+    response = await get_client.get(
+        get_app.url_path_for("users:read_users"),
+        headers={"Authorization": f"Bearer {token.get('access_token')}"},
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "Inactive user." in response.content.decode()

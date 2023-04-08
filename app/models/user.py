@@ -17,7 +17,7 @@ class User(Base):
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     username = Column("username", String(100), nullable=False, index=True, unique=True)
-    email = Column("email", String(100), nullable=False, index=True, unique=True)
+    email = Column("email", String(100), nullable=True, index=True, unique=True)
     password = Column("password", String(200))
     is_active = Column("is_active", Boolean(), default=False)
     is_superuser = Column("is_superuser", Boolean(), default=False)
